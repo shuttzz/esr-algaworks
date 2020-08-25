@@ -1,25 +1,71 @@
 package br.com.badbit.algafoods.api.controller;
 
+import br.com.badbit.algafoods.domain.exception.EntidadeEmUsoException;
+import br.com.badbit.algafoods.domain.exception.EntidadeNaoEncontradaException;
 import br.com.badbit.algafoods.domain.model.Estado;
 import br.com.badbit.algafoods.domain.repository.EstadoRepository;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import br.com.badbit.algafoods.domain.service.CadastroEstadoService;
+import org.springframework.beans.BeanUtils;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
-@RequestMapping(value = "/estados")
+@RequestMapping("/estados")
 public class EstadoController {
 
     private EstadoRepository estadoRepository;
+    private CadastroEstadoService cadastroEstadoService;
 
-    public EstadoController(EstadoRepository estadoRepository) {
+    public EstadoController(EstadoRepository estadoRepository, CadastroEstadoService cadastroEstadoService) {
         this.estadoRepository = estadoRepository;
+        this.cadastroEstadoService = cadastroEstadoService;
     }
 
     @GetMapping
     public List<Estado> listar() {
         return estadoRepository.findAll();
     }
+
+    @GetMapping("/{estadoId}")
+    public ResponseEntity<Estado> buscar(@PathVariable Long estadoId) {
+        var estado = estadoRepository.findById(estadoId);
+
+        return estado.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public Estado salvar(@RequestBody Estado estado) {
+        return cadastroEstadoService.salvar(estado);
+    }
+
+    @PutMapping("/{estadoId}")
+    public ResponseEntity<Estado> atualizar(@PathVariable Long estadoId, @RequestBody Estado estado) {
+        Optional<Estado> estadoOptional = estadoRepository.findById(estadoId);
+        if (estadoOptional.isPresent()) {
+            var estadoAtual = estadoOptional.get();
+            BeanUtils.copyProperties(estado, estadoAtual, "id");
+            estadoAtual = cadastroEstadoService.salvar(estadoAtual);
+            return ResponseEntity.ok(estadoAtual);
+        }
+
+        return ResponseEntity.notFound().build();
+    }
+
+    @DeleteMapping("/{estadoId}")
+    public ResponseEntity<?> deletar(@PathVariable Long estadoId) {
+        try {
+            cadastroEstadoService.excluir(estadoId);
+            return ResponseEntity.noContent().build();
+        } catch (EntidadeEmUsoException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        } catch (EntidadeNaoEncontradaException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
 }
