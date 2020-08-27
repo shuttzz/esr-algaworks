@@ -7,24 +7,37 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
-@Table(name = "cidades")
-public class Cidade {
+@Table(name = "itens_pedidos")
+public class ItemPedido {
 
     @Id
-    @SequenceGenerator(name = "cidades_id_seq", sequenceName = "cidades_id_seq", allocationSize = 1, initialValue = 1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "cidades_id_seq")
+    @SequenceGenerator(name = "itens_pedidos_id_seq", sequenceName = "itens_pedidos_id_seq", allocationSize = 1, initialValue = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "itens_pedidos_id_seq")
     @EqualsAndHashCode.Include
     private Long id;
-    private String nome;
+    private Integer quantidade;
+
+    @Column(name = "preco_unitario")
+    private BigDecimal precoUnitario;
+
+    @Column(name = "preco_total")
+    private BigDecimal precoTotal;
 
     @ManyToOne
-    @JoinColumn(name = "estado_id")
-    private Estado estado;
+    @JoinColumn(name = "produto_id", nullable = false)
+    private Produto produto;
+
+    @ManyToOne
+    @JoinColumn(name = "pedido_id", nullable = false)
+    private Pedido pedido;
+
+    private String observacao;
 
     @JsonIgnore
     @CreationTimestamp

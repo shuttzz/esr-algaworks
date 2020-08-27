@@ -45,6 +45,12 @@ public class Restaurante {
     private List<Produto> produtos = new ArrayList<>();
 
     @JsonIgnore
+    @ManyToMany
+    @JoinTable(name = "restaurantes_formas_pagamento", joinColumns = @JoinColumn(name = "restaurante_id"),
+            inverseJoinColumns = @JoinColumn(name = "forma_pagamento_id"))
+    private List<FormaPagamento> formasPagamento = new ArrayList<>();
+
+    @JsonIgnore
     @CreationTimestamp
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
@@ -53,11 +59,5 @@ public class Restaurante {
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
-
-//    @JsonIgnore
-    @ManyToMany
-    @JoinTable(name = "restaurantes_formas_pagamento", joinColumns = @JoinColumn(name = "restaurante_id"),
-            inverseJoinColumns = @JoinColumn(name = "forma_pagamento_id"))
-    private List<FormaPagamento> formasPagamento = new ArrayList<>();
 
 }
