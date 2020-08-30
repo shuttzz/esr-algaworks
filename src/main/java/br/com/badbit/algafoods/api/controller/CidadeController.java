@@ -1,7 +1,5 @@
 package br.com.badbit.algafoods.api.controller;
 
-import br.com.badbit.algafoods.api.exceptionhandler.Problema;
-import br.com.badbit.algafoods.domain.exception.EntidadeNaoEncontradaException;
 import br.com.badbit.algafoods.domain.exception.EstadoNaoEncontradoException;
 import br.com.badbit.algafoods.domain.exception.NegocioException;
 import br.com.badbit.algafoods.domain.model.Cidade;
@@ -9,10 +7,8 @@ import br.com.badbit.algafoods.domain.repository.CidadeRepository;
 import br.com.badbit.algafoods.domain.service.CadastroCidadeService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -65,17 +61,4 @@ public class CidadeController {
         cadastroCidadeService.excluir(cidadeId);
     }
 
-    @ExceptionHandler(EntidadeNaoEncontradaException.class)
-    public ResponseEntity<?> tratarEntidadeNaoEncontradaException(EntidadeNaoEncontradaException e) {
-        Problema problema = Problema.builder().dataHora(LocalDateTime.now())
-                .mensagem(e.getMessage()).build();
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problema);
-    }
-
-    @ExceptionHandler(NegocioException.class)
-    public ResponseEntity<?> tratarNegocioException(NegocioException e) {
-        Problema problema = Problema.builder().dataHora(LocalDateTime.now())
-                .mensagem(e.getMessage()).build();
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problema);
-    }
 }
