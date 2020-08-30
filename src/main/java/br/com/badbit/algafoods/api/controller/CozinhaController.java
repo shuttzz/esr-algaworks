@@ -32,11 +32,8 @@ public class CozinhaController {
     }
 
     @GetMapping("/{cozinhaId}")
-    public ResponseEntity<Cozinha> buscar(@PathVariable Long cozinhaId) {
-        var cozinha = cozinhaRepository.findById(cozinhaId);
-
-        return cozinha.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
-
+    public Cozinha buscar(@PathVariable Long cozinhaId) {
+        return cadastroCozinhaService.buscarOuFalhar(cozinhaId);
     }
     
     @PostMapping
@@ -46,28 +43,16 @@ public class CozinhaController {
     }
 
     @PutMapping("/{cozinhaId}")
-    public ResponseEntity<Cozinha> atualizar(@PathVariable Long cozinhaId, @RequestBody Cozinha cozinha) {
-        Optional<Cozinha> cozinhaOptional = cozinhaRepository.findById(cozinhaId);
-        if (cozinhaOptional.isPresent()) {
-            var cozinhaAtual = cozinhaOptional.get();
-            BeanUtils.copyProperties(cozinha, cozinhaAtual, "id");
-            cozinhaAtual = cadastroCozinhaService.salvar(cozinhaAtual);
-            return ResponseEntity.ok(cozinhaAtual);
-        }
-
-        return ResponseEntity.notFound().build();
+    public Cozinha atualizar(@PathVariable Long cozinhaId, @RequestBody Cozinha cozinha) {
+        Cozinha cozinhaAtual = cadastroCozinhaService.buscarOuFalhar(cozinhaId);
+        BeanUtils.copyProperties(cozinha, cozinhaAtual, "id", "createdAt");
+        return cadastroCozinhaService.salvar(cozinhaAtual);
     }
 
     @DeleteMapping("/{cozinhaId}")
-    public ResponseEntity<Cozinha> deletar(@PathVariable Long cozinhaId) {
-        try {
-            cadastroCozinhaService.excluir(cozinhaId);
-            return ResponseEntity.noContent().build();
-        } catch (EntidadeEmUsoException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
-        } catch (EntidadeNaoEncontradaException e) {
-            return ResponseEntity.notFound().build();
-        }
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deletar(@PathVariable Long cozinhaId) {
+        cadastroCozinhaService.excluir(cozinhaId);
     }
 
 }

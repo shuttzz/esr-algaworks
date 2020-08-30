@@ -2,6 +2,7 @@ package br.com.badbit.algafoods.domain.service;
 
 import br.com.badbit.algafoods.domain.exception.EntidadeEmUsoException;
 import br.com.badbit.algafoods.domain.exception.EntidadeNaoEncontradaException;
+import br.com.badbit.algafoods.domain.exception.EstadoNaoEncontradoException;
 import br.com.badbit.algafoods.domain.model.Estado;
 import br.com.badbit.algafoods.domain.repository.EstadoRepository;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -10,6 +11,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class CadastroEstadoService {
+
+    public static final String MSG_ESTADO_EM_USO = "O estado de id %d não pode ser removido, pois está vinculado à uma cidade";
 
     private EstadoRepository estadoRepository;
 
@@ -25,11 +28,14 @@ public class CadastroEstadoService {
         try {
             estadoRepository.deleteById(estadoId);
         } catch (EmptyResultDataAccessException e) {
-            throw new EntidadeNaoEncontradaException(String.format("Não foi encontrado nenhum estado com o id %d",
-                    estadoId));
+            throw new EstadoNaoEncontradoException(estadoId);
         } catch (DataIntegrityViolationException e) {
-            throw new EntidadeEmUsoException(String.format("O estado de id %d não pode ser removido, pois está " +
-                    "vinculado à uma cidade", estadoId));
+            throw new EntidadeEmUsoException(String.format(MSG_ESTADO_EM_USO, estadoId));
         }
+    }
+
+    public Estado buscarOuFalhar(Long estadoId) {
+        return estadoRepository.findById(estadoId).orElseThrow(
+                () -> new EstadoNaoEncontradoException(estadoId));
     }
 }

@@ -1,42 +1,46 @@
 package br.com.badbit.algafoods.domain.service;
 
+import br.com.badbit.algafoods.domain.exception.CidadeNaoEncontradaException;
+import br.com.badbit.algafoods.domain.exception.EntidadeEmUsoException;
 import br.com.badbit.algafoods.domain.exception.EntidadeNaoEncontradaException;
 import br.com.badbit.algafoods.domain.model.Cidade;
 import br.com.badbit.algafoods.domain.model.Estado;
 import br.com.badbit.algafoods.domain.repository.CidadeRepository;
-import br.com.badbit.algafoods.domain.repository.EstadoRepository;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 public class CadastroCidadeService {
 
+    public static final String MSG_CIDADE_EM_USO = "A cidade de id %d não pode ser removida, pois está vinculada a um endereço";
     public CidadeRepository cidadeRepository;
-    public EstadoRepository estadoRepository;
+    public CadastroEstadoService cadastroEstadoService;
 
-    public CadastroCidadeService(CidadeRepository cidadeRepository, EstadoRepository estadoRepository) {
+    public CadastroCidadeService(CidadeRepository cidadeRepository, CadastroEstadoService cadastroEstadoService) {
         this.cidadeRepository = cidadeRepository;
-        this.estadoRepository = estadoRepository;
+        this.cadastroEstadoService = cadastroEstadoService;
     }
 
     public Cidade salvar(Cidade cidade) {
         Long estadoId = cidade.getEstado().getId();
-        Estado estado = estadoRepository.findById(estadoId).orElseThrow(() -> new EntidadeNaoEncontradaException(String.format(
-                "Não existe um estado com o id %d", estadoId)));
-
+        Estado estado = cadastroEstadoService.buscarOuFalhar(estadoId);
         cidade.setEstado(estado);
         return cidadeRepository.save(cidade);
-
     }
 
     public void excluir(Long cidadeId) {
         try {
             cidadeRepository.deleteById(cidadeId);
         } catch (EmptyResultDataAccessException e) {
-            throw new EntidadeNaoEncontradaException(String.format("Não foi encontrada nenhuma cidade com o id %d",
-                    cidadeId));
+            throw new CidadeNaoEncontradaException(cidadeId);
+        } catch (DataIntegrityViolationException e) {
+            throw new EntidadeEmUsoException(String.format(MSG_CIDADE_EM_USO, cidadeId));
         }
+    }
+
+    public Cidade buscarOuFalhar(Long cidadeId) {
+        return cidadeRepository.findById(cidadeId).orElseThrow(
+                () -> new CidadeNaoEncontradaException(cidadeId));
     }
 }
