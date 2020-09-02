@@ -1,6 +1,6 @@
 package br.com.badbit.algafoods.domain.model;
 
-import br.com.badbit.algafoods.Groups;
+import br.com.badbit.algafoods.core.validation.Groups;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -19,7 +19,7 @@ import java.util.List;
 @Table(name = "cozinhas")
 public class Cozinha {
 
-    @NotNull(groups = Groups.CadastroRestaurante.class)
+    @NotNull(groups = Groups.CozinhaId.class)
     @Id
     @SequenceGenerator(name = "cozinhas_id_seq", sequenceName = "cozinhas_id_seq", allocationSize = 1, initialValue = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "cozinhas_id_seq")
