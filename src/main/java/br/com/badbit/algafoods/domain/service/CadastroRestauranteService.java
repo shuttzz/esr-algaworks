@@ -1,12 +1,11 @@
 package br.com.badbit.algafoods.domain.service;
 
-import br.com.badbit.algafoods.domain.exception.EntidadeNaoEncontradaException;
-import br.com.badbit.algafoods.domain.exception.NegocioException;
+import org.springframework.stereotype.Service;
+
 import br.com.badbit.algafoods.domain.exception.RestauranteNaoEncontradoException;
 import br.com.badbit.algafoods.domain.model.Cozinha;
 import br.com.badbit.algafoods.domain.model.Restaurante;
 import br.com.badbit.algafoods.domain.repository.RestauranteRepository;
-import org.springframework.stereotype.Service;
 
 @Service
 public class CadastroRestauranteService {

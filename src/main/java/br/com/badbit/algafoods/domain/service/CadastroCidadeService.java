@@ -1,14 +1,14 @@
 package br.com.badbit.algafoods.domain.service;
 
-import br.com.badbit.algafoods.domain.exception.CidadeNaoEncontradaException;
-import br.com.badbit.algafoods.domain.exception.EntidadeEmUsoException;
-import br.com.badbit.algafoods.domain.exception.EntidadeNaoEncontradaException;
-import br.com.badbit.algafoods.domain.model.Cidade;
-import br.com.badbit.algafoods.domain.model.Estado;
-import br.com.badbit.algafoods.domain.repository.CidadeRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
+
+import br.com.badbit.algafoods.domain.exception.CidadeNaoEncontradaException;
+import br.com.badbit.algafoods.domain.exception.EntidadeEmUsoException;
+import br.com.badbit.algafoods.domain.model.Cidade;
+import br.com.badbit.algafoods.domain.model.Estado;
+import br.com.badbit.algafoods.domain.repository.CidadeRepository;
 
 @Service
 public class CadastroCidadeService {

@@ -1,16 +1,16 @@
 package br.com.badbit.algafoods.integration;
 
-import br.com.badbit.algafoods.domain.exception.CozinhaNaoEncontradaException;
-import br.com.badbit.algafoods.domain.model.Cozinha;
-import br.com.badbit.algafoods.domain.service.CadastroCozinhaService;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.TransactionSystemException;
 
-import javax.validation.ConstraintViolationException;
-
-import static org.junit.jupiter.api.Assertions.*;
+import br.com.badbit.algafoods.domain.exception.CozinhaNaoEncontradaException;
+import br.com.badbit.algafoods.domain.model.Cozinha;
+import br.com.badbit.algafoods.domain.service.CadastroCozinhaService;
 
 @SpringBootTest
 class CadastroCozinhaIT {

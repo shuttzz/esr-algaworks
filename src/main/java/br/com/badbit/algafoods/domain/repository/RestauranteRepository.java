@@ -1,13 +1,13 @@
 package br.com.badbit.algafoods.domain.repository;
 
-import br.com.badbit.algafoods.domain.model.Restaurante;
-import org.springframework.data.jpa.repository.JpaRepository;
+import java.math.BigDecimal;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.math.BigDecimal;
-import java.util.List;
+import br.com.badbit.algafoods.domain.model.Restaurante;
 
 @Repository
 public interface RestauranteRepository extends CustomJpaRepository<Restaurante, Long>,
