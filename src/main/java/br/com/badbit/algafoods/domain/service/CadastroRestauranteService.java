@@ -8,6 +8,8 @@ import br.com.badbit.algafoods.domain.model.Restaurante;
 import br.com.badbit.algafoods.domain.repository.RestauranteRepository;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
+
 @Service
 public class CadastroRestauranteService {
 
@@ -19,6 +21,7 @@ public class CadastroRestauranteService {
         this.cadastroCozinhaService = cadastroCozinhaService;
     }
 
+    @Transactional
     public Restaurante salvar(Restaurante restaurante) {
         Long cozinhaId = restaurante.getCozinha().getId();
         Cozinha cozinha = cadastroCozinhaService.buscarOuFalhar(cozinhaId);

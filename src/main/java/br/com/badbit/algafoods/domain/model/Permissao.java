@@ -1,6 +1,5 @@
 package br.com.badbit.algafoods.domain.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.CreationTimestamp;
@@ -23,12 +22,10 @@ public class Permissao {
     private String nome;
     private String descricao;
 
-    @JsonIgnore
     @CreationTimestamp
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @JsonIgnore
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;

@@ -1,7 +1,6 @@
 package br.com.badbit.algafoods.domain.model;
 
 import br.com.badbit.algafoods.core.validation.Groups;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.CreationTimestamp;
@@ -38,12 +37,10 @@ public class Cidade {
     @JoinColumn(name = "estado_id")
     private Estado estado;
 
-    @JsonIgnore
     @CreationTimestamp
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @JsonIgnore
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;

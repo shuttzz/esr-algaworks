@@ -1,6 +1,5 @@
 package br.com.badbit.algafoods.domain.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.CreationTimestamp;
@@ -65,7 +64,6 @@ public class Pedido {
     @Column(name = "data_entrega")
     private LocalDateTime dataEntrega;
 
-    @JsonIgnore
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
