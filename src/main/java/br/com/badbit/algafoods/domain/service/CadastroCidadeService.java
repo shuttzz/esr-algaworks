@@ -10,6 +10,8 @@ import br.com.badbit.algafoods.domain.model.Cidade;
 import br.com.badbit.algafoods.domain.model.Estado;
 import br.com.badbit.algafoods.domain.repository.CidadeRepository;
 
+import javax.transaction.Transactional;
+
 @Service
 public class CadastroCidadeService {
 
@@ -22,6 +24,7 @@ public class CadastroCidadeService {
         this.cadastroEstadoService = cadastroEstadoService;
     }
 
+    @Transactional
     public Cidade salvar(Cidade cidade) {
         Long estadoId = cidade.getEstado().getId();
         Estado estado = cadastroEstadoService.buscarOuFalhar(estadoId);
@@ -29,6 +32,7 @@ public class CadastroCidadeService {
         return cidadeRepository.save(cidade);
     }
 
+    @Transactional
     public void excluir(Long cidadeId) {
         try {
             cidadeRepository.deleteById(cidadeId);

@@ -9,6 +9,8 @@ import br.com.badbit.algafoods.domain.exception.EstadoNaoEncontradoException;
 import br.com.badbit.algafoods.domain.model.Estado;
 import br.com.badbit.algafoods.domain.repository.EstadoRepository;
 
+import javax.transaction.Transactional;
+
 @Service
 public class CadastroEstadoService {
 
@@ -20,10 +22,12 @@ public class CadastroEstadoService {
         this.estadoRepository = estadoRepository;
     }
 
+    @Transactional
     public Estado salvar(Estado estado) {
         return estadoRepository.save(estado);
     }
 
+    @Transactional
     public void excluir(Long estadoId) {
         try {
             estadoRepository.deleteById(estadoId);

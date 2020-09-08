@@ -9,6 +9,8 @@ import br.com.badbit.algafoods.domain.exception.EntidadeEmUsoException;
 import br.com.badbit.algafoods.domain.model.Cozinha;
 import br.com.badbit.algafoods.domain.repository.CozinhaRepository;
 
+import javax.transaction.Transactional;
+
 @Service
 public class CadastroCozinhaService {
 
@@ -21,11 +23,13 @@ public class CadastroCozinhaService {
         this.cozinhaRepository = cozinhaRepository;
     }
 
-    public Cozinha salvar(final Cozinha cozinha) {
+    @Transactional
+    public Cozinha salvar(Cozinha cozinha) {
         return cozinhaRepository.save(cozinha);
     }
 
-    public void excluir(final Long cozinhaId) {
+    @Transactional
+    public void excluir(Long cozinhaId) {
         try {
             cozinhaRepository.deleteById(cozinhaId);
         } catch (final EmptyResultDataAccessException e) {
