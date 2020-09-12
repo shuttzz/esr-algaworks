@@ -1,15 +1,28 @@
 package br.com.badbit.algafoods.domain.model;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import java.math.BigDecimal;
+import java.time.OffsetDateTime;
+import java.util.List;
+
+import javax.persistence.Column;
+import javax.persistence.Embedded;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import javax.persistence.*;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.util.List;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -32,7 +45,7 @@ public class Pedido {
 
     @CreationTimestamp
     @Column(name = "data_criacao")
-    private LocalDateTime dataCriacao;
+    private OffsetDateTime dataCriacao;
 
     @ManyToOne
     @JoinColumn(name = "forma_pagamento_id", nullable = false)

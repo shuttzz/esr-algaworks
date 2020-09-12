@@ -32,6 +32,9 @@ public class CadastroCozinhaService {
     public void excluir(Long cozinhaId) {
         try {
             cozinhaRepository.deleteById(cozinhaId);
+            // Força o JPA a executar as operações no banco de dados, assim quando houver a exceção do tipo
+            // DataIntegrityViolationException o nosso catch vai conseguir capturar a mesma
+            cozinhaRepository.flush();
         } catch (final EmptyResultDataAccessException e) {
             throw new CozinhaNaoEncontradaException(cozinhaId);
         } catch (final DataIntegrityViolationException e) {

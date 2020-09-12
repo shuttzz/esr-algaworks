@@ -1,12 +1,13 @@
 package br.com.badbit.algafoods.api.exceptionhandler;
 
-import br.com.badbit.algafoods.core.validation.ValidacaoException;
-import br.com.badbit.algafoods.domain.exception.EntidadeEmUsoException;
-import br.com.badbit.algafoods.domain.exception.EntidadeNaoEncontradaException;
-import br.com.badbit.algafoods.domain.exception.NegocioException;
+import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import com.fasterxml.jackson.databind.JsonMappingException.Reference;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.PropertyBindingException;
+
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.context.MessageSource;
@@ -25,10 +26,10 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
+import br.com.badbit.algafoods.core.validation.ValidacaoException;
+import br.com.badbit.algafoods.domain.exception.EntidadeEmUsoException;
+import br.com.badbit.algafoods.domain.exception.EntidadeNaoEncontradaException;
+import br.com.badbit.algafoods.domain.exception.NegocioException;
 
 @ControllerAdvice
 public class ApiExceptionHanlder extends ResponseEntityExceptionHandler {

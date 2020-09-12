@@ -36,6 +36,9 @@ public class CadastroCidadeService {
     public void excluir(Long cidadeId) {
         try {
             cidadeRepository.deleteById(cidadeId);
+            // Força o JPA a executar as operações no banco de dados, assim quando houver a exceção do tipo
+            // DataIntegrityViolationException o nosso catch vai conseguir capturar a mesma
+            cidadeRepository.flush();
         } catch (EmptyResultDataAccessException e) {
             throw new CidadeNaoEncontradaException(cidadeId);
         } catch (DataIntegrityViolationException e) {

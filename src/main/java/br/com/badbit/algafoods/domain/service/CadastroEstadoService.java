@@ -31,6 +31,9 @@ public class CadastroEstadoService {
     public void excluir(Long estadoId) {
         try {
             estadoRepository.deleteById(estadoId);
+            // Força o JPA a executar as operações no banco de dados, assim quando houver a exceção do tipo
+            // DataIntegrityViolationException o nosso catch vai conseguir capturar a mesma
+            estadoRepository.flush();
         } catch (EmptyResultDataAccessException e) {
             throw new EstadoNaoEncontradoException(estadoId);
         } catch (DataIntegrityViolationException e) {

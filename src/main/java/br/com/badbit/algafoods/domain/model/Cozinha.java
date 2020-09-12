@@ -1,13 +1,11 @@
 package br.com.badbit.algafoods.domain.model;
 
-import br.com.badbit.algafoods.core.validation.Groups;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,14 +16,11 @@ import java.util.List;
 @Table(name = "cozinhas")
 public class Cozinha {
 
-    @NotNull(groups = Groups.CozinhaId.class)
     @Id
     @SequenceGenerator(name = "cozinhas_id_seq", sequenceName = "cozinhas_id_seq", allocationSize = 1, initialValue = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "cozinhas_id_seq")
     @EqualsAndHashCode.Include
     private Long id;
-
-    @NotNull
     private String nome;
 
     @OneToMany(mappedBy = "cozinha")

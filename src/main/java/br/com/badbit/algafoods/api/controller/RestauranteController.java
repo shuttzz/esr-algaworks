@@ -1,28 +1,23 @@
 package br.com.badbit.algafoods.api.controller;
 
-import br.com.badbit.algafoods.core.validation.ValidacaoException;
+import java.util.List;
+
+import javax.validation.Valid;
+
+import br.com.badbit.algafoods.domain.exception.CidadeNaoEncontradaException;
+import org.springframework.beans.BeanUtils;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+
+import br.com.badbit.algafoods.api.assembler.RestauranteDTOAssembler;
+import br.com.badbit.algafoods.api.assembler.RestauranteInputDisassembler;
+import br.com.badbit.algafoods.api.model.input.RestauranteInDTO;
+import br.com.badbit.algafoods.api.model.output.RestauranteOutDTO;
 import br.com.badbit.algafoods.domain.exception.CozinhaNaoEncontradaException;
 import br.com.badbit.algafoods.domain.exception.NegocioException;
 import br.com.badbit.algafoods.domain.model.Restaurante;
 import br.com.badbit.algafoods.domain.repository.RestauranteRepository;
 import br.com.badbit.algafoods.domain.service.CadastroRestauranteService;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.springframework.beans.BeanUtils;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.http.server.ServletServerHttpRequest;
-import org.springframework.util.ReflectionUtils;
-import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.SmartValidator;
-import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-import java.lang.reflect.Field;
-import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/restaurantes")
@@ -30,73 +25,92 @@ public class RestauranteController {
 
     private RestauranteRepository restauranteRepository;
     private CadastroRestauranteService cadastroRestauranteService;
-    private SmartValidator validator;
+    private RestauranteDTOAssembler restauranteDTOAssembler;
+    private RestauranteInputDisassembler restauranteModelDisassembler;
+    // private SmartValidator validator;
 
-    public RestauranteController(RestauranteRepository restauranteRepository, CadastroRestauranteService cadastroRestauranteService, SmartValidator validator) {
+    public RestauranteController(RestauranteRepository restauranteRepository,
+            CadastroRestauranteService cadastroRestauranteService, RestauranteDTOAssembler restauranteDTOAssembler,
+            RestauranteInputDisassembler restauranteModelDisassembler) {
         this.restauranteRepository = restauranteRepository;
         this.cadastroRestauranteService = cadastroRestauranteService;
-        this.validator = validator;
+        this.restauranteDTOAssembler = restauranteDTOAssembler;
+        this.restauranteModelDisassembler = restauranteModelDisassembler;
     }
 
     @GetMapping
-    public List<Restaurante> listar() {
-        return restauranteRepository.findAll();
+    public List<RestauranteOutDTO> listar() {
+        return restauranteDTOAssembler.toCollectionDTO(restauranteRepository.findAll());
     }
 
     @GetMapping("/{restauranteId}")
-    public Restaurante buscar(@PathVariable Long restauranteId) {
-        return cadastroRestauranteService.buscarOuFalhar(restauranteId);
+    public RestauranteOutDTO buscar(@PathVariable Long restauranteId) {
+        Restaurante restaurante = cadastroRestauranteService.buscarOuFalhar(restauranteId);
+        
+        return restauranteDTOAssembler.toDTO(restaurante);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Restaurante salvar(@RequestBody @Valid Restaurante restaurante) {
+    public RestauranteOutDTO salvar(@RequestBody @Valid RestauranteInDTO restauranteInDTO) {
         try {
-            return cadastroRestauranteService.salvar(restaurante);
-        } catch (CozinhaNaoEncontradaException e) {
+            Restaurante restaurante = restauranteModelDisassembler.toDomainObject(restauranteInDTO);
+            return restauranteDTOAssembler.toDTO(cadastroRestauranteService.salvar(restaurante));
+        } catch (CozinhaNaoEncontradaException | CidadeNaoEncontradaException e) {
             throw new NegocioException(e.getMessage(), e);
         }
     }
 
     @PutMapping("/{restauranteId}")
-    public Restaurante atualizar(@PathVariable Long restauranteId, @RequestBody @Valid Restaurante restaurante) {
+    public RestauranteOutDTO atualizar(@PathVariable Long restauranteId, @RequestBody @Valid RestauranteInDTO restauranteInDTO) {
         try {
             Restaurante restauranteAtual = cadastroRestauranteService.buscarOuFalhar(restauranteId);
-            BeanUtils.copyProperties(restaurante, restauranteAtual, "id",
-                    "formasPagamento", "endereco", "createdAt");
-            return cadastroRestauranteService.salvar(restauranteAtual);
-        } catch (CozinhaNaoEncontradaException e) {
+            restauranteModelDisassembler.copyToDomainObject(restauranteInDTO, restauranteAtual);
+            return restauranteDTOAssembler.toDTO(cadastroRestauranteService.salvar(restauranteAtual));
+        } catch (CozinhaNaoEncontradaException | CidadeNaoEncontradaException e) {
             throw new NegocioException(e.getMessage(), e);
         }
     }
 
-    @PatchMapping("/{restauranteId}")
-    public Restaurante atualizarParcial(@PathVariable Long restauranteId, @RequestBody Map<String, Object> campos,
+    @PutMapping("/{restauranteId}/ativo")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void ativar(@PathVariable Long restauranteId) {
+        cadastroRestauranteService.ativar(restauranteId);
+    }
+
+    @DeleteMapping("/{restauranteId}/ativo")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void inativar(@PathVariable Long restauranteId) {
+        cadastroRestauranteService.inativar(restauranteId);
+    }
+
+    /* @PatchMapping("/{restauranteId}")
+    public RestauranteOutDTO  atualizarParcial(@PathVariable Long restauranteId, @RequestBody Map<String, Object> campos,
                                         HttpServletRequest request) {
         Restaurante restaurante = cadastroRestauranteService.buscarOuFalhar(restauranteId);
         merge(campos, restaurante, request);
         validate(restaurante, "restaurante");
 
         return atualizar(restauranteId, restaurante);
-    }
+    } */
 
-    private void validate(Restaurante restaurante, String objectName) {
+    /* private void validate(Restaurante restaurante, String objectName) {
         BeanPropertyBindingResult bindingResult = new BeanPropertyBindingResult(restaurante, objectName);
         validator.validate(restaurante, bindingResult);
 
         if (bindingResult.hasErrors()) {
             throw new ValidacaoException(bindingResult);
         }
-    }
+    } */
 
-    private void merge(Map<String, Object> dadosOrigem, Restaurante restauranteDestino, HttpServletRequest request) {
+    /* private void merge(Map<String, Object> dadosOrigem, RestauranteInDTO restauranteDestino, HttpServletRequest request) {
         ServletServerHttpRequest serverHttpRequest = new ServletServerHttpRequest(request);
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, true);
             objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true);
 
-            Restaurante restauranteOrigem = objectMapper.convertValue(dadosOrigem, Restaurante.class);
+            RestauranteInDTO restauranteOrigem = objectMapper.convertValue(dadosOrigem, RestauranteInDTO.class);
 
             dadosOrigem.forEach((nomePropriedade, valorPropriedade) -> {
                 Field field = ReflectionUtils.findField(Restaurante.class, nomePropriedade);
@@ -110,6 +124,6 @@ public class RestauranteController {
             Throwable rootCause = ExceptionUtils.getRootCause(e);
             throw new HttpMessageNotReadableException(e.getMessage(), rootCause, serverHttpRequest);
         }
-    }
+    } */
 
 }

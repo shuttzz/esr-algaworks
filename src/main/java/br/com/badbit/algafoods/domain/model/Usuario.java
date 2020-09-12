@@ -22,6 +22,7 @@ public class Usuario {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "usuarios_id_seq")
     @EqualsAndHashCode.Include
     private Long id;
+    private String nome;
     private String email;
     private String senha;
 
@@ -38,5 +39,13 @@ public class Usuario {
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private OffsetDateTime updatedAt;
+
+    public boolean senhaCoincideCom(String senha) {
+        return getSenha().equals(senha);
+    }
+
+    public boolean senhaNaoCoincideCom(String senha) {
+        return !senhaCoincideCom(senha);
+    }
 
 }
