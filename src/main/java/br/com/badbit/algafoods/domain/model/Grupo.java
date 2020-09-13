@@ -7,8 +7,8 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -25,7 +25,7 @@ public class Grupo {
 
     @ManyToMany
     @JoinTable(name = "grupos_permissoes", joinColumns = @JoinColumn(name = "grupo_id"))
-    private List<Permissao> permissoes = new ArrayList<>();
+    private Set<Permissao> permissoes = new HashSet<>();
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false)
@@ -34,5 +34,13 @@ public class Grupo {
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private OffsetDateTime updatedAt;
+
+    public boolean removerPermissao(Permissao permissao) {
+        return getPermissoes().remove(permissao);
+    }
+
+    public boolean adicionarPermissao(Permissao permissao) {
+        return getPermissoes().add(permissao);
+    }
 
 }

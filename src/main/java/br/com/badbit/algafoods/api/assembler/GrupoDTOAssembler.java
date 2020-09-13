@@ -5,6 +5,7 @@ import br.com.badbit.algafoods.domain.model.Grupo;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,9 +22,9 @@ public class GrupoDTOAssembler {
         return modelMapper.map(grupo, GrupoOutDTO.class);
     }
 
-    public List<GrupoOutDTO> toCollectionDTO(List<Grupo> grupos) {
+    public List<GrupoOutDTO> toCollectionDTO(Collection<Grupo> grupos) {
         return grupos.stream()
-                .map(estado -> toDTO(estado))
+                .map(grupo -> toDTO(grupo))
                 .collect(Collectors.toList());
     }
 

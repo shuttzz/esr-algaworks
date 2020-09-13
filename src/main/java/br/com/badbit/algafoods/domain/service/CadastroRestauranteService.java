@@ -1,12 +1,9 @@
 package br.com.badbit.algafoods.domain.service;
 
-import br.com.badbit.algafoods.domain.model.Cidade;
-import br.com.badbit.algafoods.domain.model.FormaPagamento;
+import br.com.badbit.algafoods.domain.model.*;
 import org.springframework.stereotype.Service;
 
 import br.com.badbit.algafoods.domain.exception.RestauranteNaoEncontradoException;
-import br.com.badbit.algafoods.domain.model.Cozinha;
-import br.com.badbit.algafoods.domain.model.Restaurante;
 import br.com.badbit.algafoods.domain.repository.RestauranteRepository;
 
 import javax.transaction.Transactional;
@@ -18,14 +15,16 @@ public class CadastroRestauranteService {
     private CadastroCozinhaService cadastroCozinhaService;
     private CadastroCidadeService cadastroCidadeService;
     private CadastroFormaPagamentoService cadastroFormaPagamentoService;
+    private CadastroUsuarioService cadastroUsuarioService;
 
     public CadastroRestauranteService(RestauranteRepository restauranteRepository,
                                       CadastroCozinhaService cadastroCozinhaService, CadastroCidadeService cadastroCidadeService,
-                                      CadastroFormaPagamentoService cadastroFormaPagamentoService) {
+                                      CadastroFormaPagamentoService cadastroFormaPagamentoService, CadastroUsuarioService cadastroUsuarioService) {
         this.restauranteRepository = restauranteRepository;
         this.cadastroCozinhaService = cadastroCozinhaService;
         this.cadastroCidadeService = cadastroCidadeService;
         this.cadastroFormaPagamentoService = cadastroFormaPagamentoService;
+        this.cadastroUsuarioService = cadastroUsuarioService;
     }
 
     @Transactional
@@ -68,8 +67,39 @@ public class CadastroRestauranteService {
         restaurante.adicionarFormaPagamento(formaPagamento);
     }
 
+    @Transactional
+    public void abrir(Long restauranteId) {
+        Restaurante restauranteAtual = buscarOuFalhar(restauranteId);
+
+        restauranteAtual.abrir();
+    }
+
+    @Transactional
+    public void fechar(Long restauranteId) {
+        Restaurante restauranteAtual = buscarOuFalhar(restauranteId);
+
+        restauranteAtual.fechar();
+    }
+
     public Restaurante buscarOuFalhar(Long restauranteId) {
         return restauranteRepository.findById(restauranteId).orElseThrow(
                 () -> new RestauranteNaoEncontradoException(restauranteId));
     }
+
+    @Transactional
+    public void desassociarResponsavel(Long restauranteId, Long usuarioId) {
+        Restaurante restaurante = buscarOuFalhar(restauranteId);
+        Usuario usuario = cadastroUsuarioService.buscarOuFalhar(usuarioId);
+
+        restaurante.removerResponsavel(usuario);
+    }
+
+    @Transactional
+    public void associarResponsavel(Long restauranteId, Long usuarioId) {
+        Restaurante restaurante = buscarOuFalhar(restauranteId);
+        Usuario usuario = cadastroUsuarioService.buscarOuFalhar(usuarioId);
+
+        restaurante.adicionarResponsavel(usuario);
+    }
+
 }

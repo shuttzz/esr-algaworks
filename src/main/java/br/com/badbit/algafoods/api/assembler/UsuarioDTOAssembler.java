@@ -5,6 +5,7 @@ import br.com.badbit.algafoods.domain.model.Usuario;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,9 +22,9 @@ public class UsuarioDTOAssembler {
         return modelMapper.map(usuario, UsuarioOutDTO.class);
     }
 
-    public List<UsuarioOutDTO> toCollectionDTO(List<Usuario> usuarios) {
+    public List<UsuarioOutDTO> toCollectionDTO(Collection<Usuario> usuarios) {
         return usuarios.stream()
-                .map(estado -> toDTO(estado))
+                .map(usuario -> toDTO(usuario))
                 .collect(Collectors.toList());
     }
 

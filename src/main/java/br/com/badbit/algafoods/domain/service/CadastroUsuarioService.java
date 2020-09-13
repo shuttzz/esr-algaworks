@@ -3,6 +3,7 @@ package br.com.badbit.algafoods.domain.service;
 import br.com.badbit.algafoods.domain.exception.EntidadeEmUsoException;
 import br.com.badbit.algafoods.domain.exception.NegocioException;
 import br.com.badbit.algafoods.domain.exception.UsuarioNaoEncontradoException;
+import br.com.badbit.algafoods.domain.model.Grupo;
 import br.com.badbit.algafoods.domain.model.Usuario;
 import br.com.badbit.algafoods.domain.repository.UsuarioRepository;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -18,9 +19,11 @@ public class CadastroUsuarioService {
     public static final String MSG_USUARIO_EM_USO = "O usuário de id %d não pode ser removido, pois está em uso.";
 
     private UsuarioRepository usuarioRepository;
+    private CadastroGrupoService cadastroGrupoService;
 
-    public CadastroUsuarioService(UsuarioRepository usuarioRepository) {
+    public CadastroUsuarioService(UsuarioRepository usuarioRepository, CadastroGrupoService cadastroGrupoService) {
         this.usuarioRepository = usuarioRepository;
+        this.cadastroGrupoService = cadastroGrupoService;
     }
 
     @Transactional
@@ -66,4 +69,21 @@ public class CadastroUsuarioService {
         return usuarioRepository.findById(usuarioId).orElseThrow(
                 () -> new UsuarioNaoEncontradoException(usuarioId));
     }
+
+    @Transactional
+    public void desassociarGrupo(Long usuarioId, Long grupoId) {
+        Usuario usuario = buscarOuFalhar(usuarioId);
+        Grupo grupo = cadastroGrupoService.buscarOuFalhar(grupoId);
+
+        usuario.removerGrupo(grupo);
+    }
+
+    @Transactional
+    public void associarGrupo(Long usuarioId, Long grupoId) {
+        Usuario usuario = buscarOuFalhar(usuarioId);
+        Grupo grupo = cadastroGrupoService.buscarOuFalhar(grupoId);
+
+        usuario.adicionarGrupo(grupo);
+    }
+
 }

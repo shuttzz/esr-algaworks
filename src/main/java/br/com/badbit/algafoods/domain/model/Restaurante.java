@@ -38,6 +38,9 @@ public class Restaurante {
     @Column(name = "ativo", nullable = false)
     private Boolean ativo = Boolean.TRUE;
 
+    @Column(name = "aberto", nullable = false)
+    private Boolean aberto = Boolean.FALSE;
+
     @Embedded
     private Endereco endereco;
 
@@ -48,6 +51,10 @@ public class Restaurante {
     @JoinTable(name = "restaurantes_formas_pagamento", joinColumns = @JoinColumn(name = "restaurante_id"),
             inverseJoinColumns = @JoinColumn(name = "forma_pagamento_id"))
     private Set<FormaPagamento> formasPagamento = new HashSet<>();
+
+    @ManyToMany
+    @JoinTable(name = "restaurantes_usuarios", joinColumns = @JoinColumn(name = "restaurante_id"), inverseJoinColumns = @JoinColumn(name = "usuario_id"))
+    private Set<Usuario> responsaveis = new HashSet<>();
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false)
@@ -65,12 +72,28 @@ public class Restaurante {
         setAtivo(false);
     }
 
+    public void abrir() {
+        setAberto(true);
+    }
+
+    public void fechar() {
+        setAberto(false);
+    }
+
     public boolean adicionarFormaPagamento(FormaPagamento formaPagamento) {
         return getFormasPagamento().add(formaPagamento);
     }
 
     public boolean removerFormaPagamento(FormaPagamento formaPagamento) {
         return getFormasPagamento().remove(formaPagamento);
+    }
+
+    public boolean adicionarResponsavel(Usuario usuario) {
+        return getResponsaveis().add(usuario);
+    }
+
+    public boolean removerResponsavel(Usuario usuario) {
+        return getResponsaveis().remove(usuario);
     }
 
 }

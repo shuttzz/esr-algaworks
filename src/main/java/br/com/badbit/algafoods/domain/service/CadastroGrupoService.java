@@ -3,6 +3,7 @@ package br.com.badbit.algafoods.domain.service;
 import br.com.badbit.algafoods.domain.exception.EntidadeEmUsoException;
 import br.com.badbit.algafoods.domain.exception.GrupoNaoEncontradoException;
 import br.com.badbit.algafoods.domain.model.Grupo;
+import br.com.badbit.algafoods.domain.model.Permissao;
 import br.com.badbit.algafoods.domain.repository.GrupoRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -16,9 +17,11 @@ public class CadastroGrupoService {
     public static final String MSG_GRUPO_EM_USO = "O grupo de id %d não pode ser removido, pois está em uso.";
 
     private GrupoRepository grupoRepository;
+    private CadastroPermissaoService cadastroPermissaoService;
 
-    public CadastroGrupoService(GrupoRepository grupoRepository) {
+    public CadastroGrupoService(GrupoRepository grupoRepository, CadastroPermissaoService cadastroPermissaoService) {
         this.grupoRepository = grupoRepository;
+        this.cadastroPermissaoService = cadastroPermissaoService;
     }
 
     @Transactional
@@ -44,4 +47,21 @@ public class CadastroGrupoService {
         return grupoRepository.findById(grupoId).orElseThrow(
                 () -> new GrupoNaoEncontradoException(grupoId));
     }
+
+    @Transactional
+    public void desassociarPermissao(Long grupoId, Long permisaoId) {
+        Grupo grupo = buscarOuFalhar(grupoId);
+        Permissao permissao = cadastroPermissaoService.buscarOuFalhar(permisaoId);
+
+        grupo.removerPermissao(permissao);
+    }
+
+    @Transactional
+    public void associarPermissao(Long grupoId, Long permisaoId) {
+        Grupo grupo = buscarOuFalhar(grupoId);
+        Permissao permissao = cadastroPermissaoService.buscarOuFalhar(permisaoId);
+
+        grupo.adicionarPermissao(permissao);
+    }
+
 }

@@ -1,0 +1,2 @@
+ALTER TABLE public.restaurantes
+    ADD COLUMN aberto BOOLEAN DEFAULT TRUE NOT NULL;

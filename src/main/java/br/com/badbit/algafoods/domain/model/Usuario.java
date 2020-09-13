@@ -8,8 +8,8 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -27,8 +27,8 @@ public class Usuario {
     private String senha;
 
     @ManyToMany
-    @JoinTable(name = "usuarios_grupos", joinColumns = @JoinColumn(name = "usuario_id"))
-    private List<Grupo> grupos = new ArrayList<>();
+    @JoinTable(name = "usuarios_grupos", joinColumns = @JoinColumn(name = "usuario_id"), inverseJoinColumns = @JoinColumn(name = "grupo_id"))
+    private Set<Grupo> grupos = new HashSet<>();
 
     @JsonIgnore
     @CreationTimestamp
@@ -46,6 +46,14 @@ public class Usuario {
 
     public boolean senhaNaoCoincideCom(String senha) {
         return !senhaCoincideCom(senha);
+    }
+
+    public boolean removerGrupo(Grupo grupo) {
+        return getGrupos().remove(grupo);
+    }
+
+    public boolean adicionarGrupo(Grupo grupo) {
+        return getGrupos().add(grupo);
     }
 
 }
