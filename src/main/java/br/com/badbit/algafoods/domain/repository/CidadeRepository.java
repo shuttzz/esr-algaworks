@@ -1,9 +1,14 @@
 package br.com.badbit.algafoods.domain.repository;
 
 import br.com.badbit.algafoods.domain.model.Cidade;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+import java.util.UUID;
+
 @Repository
-public interface CidadeRepository extends JpaRepository<Cidade, Long> {
+public interface CidadeRepository extends CustomJpaRepository<Cidade, Long> {
+
+    Optional<Cidade> findByCodigo(UUID codigo);
+
 }

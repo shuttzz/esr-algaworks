@@ -1,13 +1,14 @@
 package br.com.badbit.algafoods.domain.repository;
 
-import java.math.BigDecimal;
-import java.util.List;
-
+import br.com.badbit.algafoods.domain.model.Restaurante;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import br.com.badbit.algafoods.domain.model.Restaurante;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface RestauranteRepository extends CustomJpaRepository<Restaurante, Long>,
@@ -18,5 +19,7 @@ public interface RestauranteRepository extends CustomJpaRepository<Restaurante, 
     List<Restaurante> findAll();
     List<Restaurante> findByTaxaFreteBetween(BigDecimal taxaInicial, BigDecimal taxaFinal);
     List<Restaurante> findByNomeContaining(String nome);
+
+    Optional<Restaurante> findByCodigo(UUID codigo);
 
 }

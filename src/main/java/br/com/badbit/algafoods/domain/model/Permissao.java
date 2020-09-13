@@ -7,6 +7,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.time.OffsetDateTime;
+import java.util.UUID;
 
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -19,6 +20,7 @@ public class Permissao {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "permissoes_id_seq")
     @EqualsAndHashCode.Include
     private Long id;
+    private UUID codigo;
     private String nome;
     private String descricao;
 
@@ -29,5 +31,10 @@ public class Permissao {
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private OffsetDateTime updatedAt;
+
+    @PrePersist
+    private void gerarCodigo() {
+        setCodigo(UUID.randomUUID());
+    }
 
 }

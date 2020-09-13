@@ -7,6 +7,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.time.OffsetDateTime;
+import java.util.UUID;
 
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -20,6 +21,8 @@ public class Estado {
     @EqualsAndHashCode.Include
     private Long id;
 
+    private UUID codigo;
+
     @Column(nullable = false)
     private String nome;
 
@@ -30,5 +33,10 @@ public class Estado {
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private OffsetDateTime updatedAt;
+
+    @PrePersist
+    private void gerarCodigo() {
+        setCodigo(UUID.randomUUID());
+    }
 
 }

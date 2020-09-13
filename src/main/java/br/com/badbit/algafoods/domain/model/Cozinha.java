@@ -9,6 +9,7 @@ import javax.persistence.*;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -21,6 +22,7 @@ public class Cozinha {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "cozinhas_id_seq")
     @EqualsAndHashCode.Include
     private Long id;
+    private UUID codigo;
     private String nome;
 
     @OneToMany(mappedBy = "cozinha")
@@ -33,5 +35,10 @@ public class Cozinha {
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private OffsetDateTime updatedAt;
+
+    @PrePersist
+    private void gerarCodigo() {
+        setCodigo(UUID.randomUUID());
+    }
 
 }

@@ -7,9 +7,9 @@ import java.util.UUID;
 
 @Getter
 @Setter
-public class FormaPagamentoOutDTO {
+public class RestaurantePedidoOutDTO {
 
     private UUID codigo;
-    private String descricao;
+    private String nome;
 
 }

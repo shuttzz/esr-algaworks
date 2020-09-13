@@ -23,7 +23,7 @@ public class RestauranteInDTO {
 
     @Valid
     @NotNull
-    private CozinhaRestauranteInDTO cozinha;
+    private CozinhaIdInDTO cozinha;
 
     @Valid
     @NotNull

@@ -10,6 +10,7 @@ import javax.persistence.*;
 import java.time.OffsetDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -22,6 +23,7 @@ public class Usuario {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "usuarios_id_seq")
     @EqualsAndHashCode.Include
     private Long id;
+    private UUID codigo;
     private String nome;
     private String email;
     private String senha;
@@ -54,6 +56,11 @@ public class Usuario {
 
     public boolean adicionarGrupo(Grupo grupo) {
         return getGrupos().add(grupo);
+    }
+
+    @PrePersist
+    private void gerarCodigo() {
+        setCodigo(UUID.randomUUID());
     }
 
 }

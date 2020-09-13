@@ -2,22 +2,13 @@ package br.com.badbit.algafoods.domain.model;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
-import javax.persistence.Column;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
+import javax.persistence.*;
 
+import br.com.badbit.algafoods.domain.exception.NegocioException;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -35,6 +26,7 @@ public class Pedido {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "pedidos_id_seq")
     @EqualsAndHashCode.Include
     private Long id;
+    private UUID codigo;
     private BigDecimal subtotal;
 
     @Column(name = "taxa_frete")
@@ -43,11 +35,27 @@ public class Pedido {
     @Column(name = "valor_total")
     private BigDecimal valorTotal;
 
+    @Embedded
+    private Endereco enderecoEntrega;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private StatusPedido statusPedido = StatusPedido.CRIADO;
+
     @CreationTimestamp
     @Column(name = "data_criacao")
     private OffsetDateTime dataCriacao;
 
-    @ManyToOne
+    @Column(name = "data_confirmacao")
+    private OffsetDateTime dataConfirmacao;
+
+    @Column(name = "data_cancelamento")
+    private OffsetDateTime dataCancelamento;
+
+    @Column(name = "data_entrega")
+    private OffsetDateTime dataEntrega;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "forma_pagamento_id", nullable = false)
     private FormaPagamento formaPagamento;
 
@@ -59,27 +67,53 @@ public class Pedido {
     @JoinColumn(name = "cliente_id", nullable = false)
     private Usuario cliente;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status")
-    private StatusPedido statusPedido;
-
-    @Embedded
-    private Endereco endereco;
-
-    @OneToMany(mappedBy = "pedido")
-    private List<ItemPedido> itensPedido;
-
-    @Column(name = "data_confirmacao")
-    private OffsetDateTime dataConfirmacao;
-
-    @Column(name = "data_cancelamento")
-    private OffsetDateTime dataCancelamento;
-
-    @Column(name = "data_entrega")
-    private OffsetDateTime dataEntrega;
+    // Com esse CascadeType.ALL eu vou salvar os itensPedido quando mandar salvar o Pedido
+    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL)
+    private List<ItemPedido> itensPedido = new ArrayList<>();
 
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private OffsetDateTime updatedAt;
+
+    public void calcularValorTotal() {
+        getItensPedido().forEach(ItemPedido::calcularPrecoTotal);
+
+        this.subtotal = getItensPedido().stream()
+                .map(item -> item.getPrecoTotal())
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        this.valorTotal = this.subtotal.add(this.taxaFrete);
+    }
+
+    public void confirmar() {
+        setStatusPedido(StatusPedido.CONFIRMADO);
+        setDataConfirmacao(OffsetDateTime.now());
+    }
+
+    public void entregar() {
+        setStatusPedido(StatusPedido.ENTREGUE);
+        setDataEntrega(OffsetDateTime.now());
+    }
+
+    public void cancelar() {
+        setStatusPedido(StatusPedido.CANCELADO);
+        setDataCancelamento(OffsetDateTime.now());
+    }
+
+    private void setStatus(StatusPedido novoStatus) {
+        if (getStatusPedido().naoPodeAlterarPara(novoStatus)) {
+            throw new NegocioException(
+                    String.format("Status do pedido %s não pode ser alterado de %s para %s",
+                            getCodigo(), getStatusPedido().getDescricao(), novoStatus.getDescricao() )
+            );
+        }
+
+        this.statusPedido = novoStatus;
+    }
+
+    @PrePersist
+    private void gerarCodigo() {
+        setCodigo(UUID.randomUUID());
+    }
 
 }

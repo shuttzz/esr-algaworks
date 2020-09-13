@@ -1,14 +1,14 @@
 package br.com.badbit.algafoods.api.model.input;
 
-import javax.validation.constraints.NotNull;
-
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.validation.constraints.NotNull;
+
 @Getter
 @Setter
-public class CozinhaRestauranteInDTO {
-    
+public class RestauranteIdInDTO {
+
     @NotNull
     private Long id;
 

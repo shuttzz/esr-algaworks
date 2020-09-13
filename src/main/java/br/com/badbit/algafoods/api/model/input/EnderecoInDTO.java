@@ -22,6 +22,6 @@ public class EnderecoInDTO {
     private String bairro;
     @Valid
     @NotNull
-    private CidadeRestauranteInDTO cidade;
+    private CidadeIdInDTO cidade;
 
 }

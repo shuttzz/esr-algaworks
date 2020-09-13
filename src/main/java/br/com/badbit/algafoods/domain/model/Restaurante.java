@@ -8,10 +8,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -27,6 +24,8 @@ public class Restaurante {
 
     @Column(nullable = false)
     private String nome;
+
+    private UUID codigo;
 
     @Column(name = "taxa_frete", nullable = false)
     private BigDecimal taxaFrete;
@@ -94,6 +93,19 @@ public class Restaurante {
 
     public boolean removerResponsavel(Usuario usuario) {
         return getResponsaveis().remove(usuario);
+    }
+
+    public boolean aceitaFormaPagamento(FormaPagamento formaPagamento) {
+        return getFormasPagamento().contains(formaPagamento);
+    }
+
+    public boolean naoAceitaFormaPagamento(FormaPagamento formaPagamento) {
+        return !aceitaFormaPagamento(formaPagamento);
+    }
+
+    @PrePersist
+    private void gerarCodigo() {
+        setCodigo(UUID.randomUUID());
     }
 
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import javax.validation.Valid;
 
 import br.com.badbit.algafoods.domain.exception.CidadeNaoEncontradaException;
+import br.com.badbit.algafoods.domain.exception.RestauranteNaoEncontradoException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -78,10 +79,30 @@ public class RestauranteController {
         cadastroRestauranteService.ativar(restauranteId);
     }
 
+    @PutMapping("/ativacoes")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void ativarMultiplos(@RequestBody List<Long> restauranteIds) {
+        try {
+            cadastroRestauranteService.ativar(restauranteIds);
+        } catch (RestauranteNaoEncontradoException exception) {
+            throw new NegocioException(exception.getMessage(), exception);
+        }
+    }
+
     @DeleteMapping("/{restauranteId}/ativo")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void inativar(@PathVariable Long restauranteId) {
         cadastroRestauranteService.inativar(restauranteId);
+    }
+
+    @DeleteMapping("/ativacoes")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void inativarMultiplos(@RequestBody List<Long> restauranteIds) {
+        try {
+            cadastroRestauranteService.inativar(restauranteIds);
+        } catch (RestauranteNaoEncontradoException exception) {
+            throw new NegocioException(exception.getMessage(), exception);
+        }
     }
 
     @PutMapping("/{restauranteId}/abertura")

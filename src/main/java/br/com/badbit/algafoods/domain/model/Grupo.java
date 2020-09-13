@@ -9,6 +9,7 @@ import javax.persistence.*;
 import java.time.OffsetDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -21,6 +22,7 @@ public class Grupo {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "grupos_id_seq")
     @EqualsAndHashCode.Include
     private Long id;
+    private UUID codigo;
     private String nome;
 
     @ManyToMany
@@ -41,6 +43,11 @@ public class Grupo {
 
     public boolean adicionarPermissao(Permissao permissao) {
         return getPermissoes().add(permissao);
+    }
+
+    @PrePersist
+    private void gerarCodigo() {
+        setCodigo(UUID.randomUUID());
     }
 
 }

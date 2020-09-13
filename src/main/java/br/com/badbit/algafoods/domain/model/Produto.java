@@ -2,16 +2,9 @@ package br.com.badbit.algafoods.domain.model;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.UUID;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -30,6 +23,7 @@ public class Produto {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "produtos_id_seq")
     @EqualsAndHashCode.Include
     private Long id;
+    private UUID codigo;
     private String nome;
     private String descricao;
     private BigDecimal preco;
@@ -46,5 +40,10 @@ public class Produto {
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private OffsetDateTime updatedAt;
+
+    @PrePersist
+    private void gerarCodigo() {
+        setCodigo(UUID.randomUUID());
+    }
 
 }

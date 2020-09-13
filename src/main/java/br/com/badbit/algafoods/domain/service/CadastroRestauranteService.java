@@ -7,6 +7,7 @@ import br.com.badbit.algafoods.domain.exception.RestauranteNaoEncontradoExceptio
 import br.com.badbit.algafoods.domain.repository.RestauranteRepository;
 
 import javax.transaction.Transactional;
+import java.util.List;
 
 @Service
 public class CadastroRestauranteService {
@@ -38,20 +39,6 @@ public class CadastroRestauranteService {
     }
 
     @Transactional
-    public void ativar(Long restauranteId) {
-        Restaurante restaurante = buscarOuFalhar(restauranteId);
-
-        restaurante.ativar(); // Não preciso dá um save, pois a entidade está sendo gerenciada pelo JPA
-    }
-
-    @Transactional
-    public void inativar(Long restauranteId) {
-        Restaurante restaurante = buscarOuFalhar(restauranteId);
-
-        restaurante.inativar(); // Não preciso dá um save, pois a entidade está sendo gerenciada pelo JPA
-    }
-
-    @Transactional
     public void desassociarFormaPagamento(Long resturanteId, Long formaPagamentoId) {
         Restaurante restaurante = buscarOuFalhar(resturanteId);
         FormaPagamento formaPagamento = cadastroFormaPagamentoService.buscarOuFalhar(formaPagamentoId);
@@ -68,25 +55,6 @@ public class CadastroRestauranteService {
     }
 
     @Transactional
-    public void abrir(Long restauranteId) {
-        Restaurante restauranteAtual = buscarOuFalhar(restauranteId);
-
-        restauranteAtual.abrir();
-    }
-
-    @Transactional
-    public void fechar(Long restauranteId) {
-        Restaurante restauranteAtual = buscarOuFalhar(restauranteId);
-
-        restauranteAtual.fechar();
-    }
-
-    public Restaurante buscarOuFalhar(Long restauranteId) {
-        return restauranteRepository.findById(restauranteId).orElseThrow(
-                () -> new RestauranteNaoEncontradoException(restauranteId));
-    }
-
-    @Transactional
     public void desassociarResponsavel(Long restauranteId, Long usuarioId) {
         Restaurante restaurante = buscarOuFalhar(restauranteId);
         Usuario usuario = cadastroUsuarioService.buscarOuFalhar(usuarioId);
@@ -100,6 +68,49 @@ public class CadastroRestauranteService {
         Usuario usuario = cadastroUsuarioService.buscarOuFalhar(usuarioId);
 
         restaurante.adicionarResponsavel(usuario);
+    }
+
+    @Transactional
+    public void abrir(Long restauranteId) {
+        Restaurante restauranteAtual = buscarOuFalhar(restauranteId);
+
+        restauranteAtual.abrir();
+    }
+
+    @Transactional
+    public void fechar(Long restauranteId) {
+        Restaurante restauranteAtual = buscarOuFalhar(restauranteId);
+
+        restauranteAtual.fechar();
+    }
+
+    @Transactional
+    public void ativar(Long restauranteId) {
+        Restaurante restaurante = buscarOuFalhar(restauranteId);
+
+        restaurante.ativar(); // Não preciso dá um save, pois a entidade está sendo gerenciada pelo JPA
+    }
+
+    @Transactional
+    public void ativar(List<Long> restuaranteIds) {
+        restuaranteIds.forEach(this::ativar);
+    }
+
+    @Transactional
+    public void inativar(Long restauranteId) {
+        Restaurante restaurante = buscarOuFalhar(restauranteId);
+
+        restaurante.inativar(); // Não preciso dá um save, pois a entidade está sendo gerenciada pelo JPA
+    }
+
+    @Transactional
+    public void inativar(List<Long> restuaranteIds) {
+        restuaranteIds.forEach(this::inativar);
+    }
+
+    public Restaurante buscarOuFalhar(Long restauranteId) {
+        return restauranteRepository.findById(restauranteId).orElseThrow(
+                () -> new RestauranteNaoEncontradoException(restauranteId));
     }
 
 }
