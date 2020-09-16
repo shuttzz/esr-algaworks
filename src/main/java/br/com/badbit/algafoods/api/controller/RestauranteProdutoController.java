@@ -36,9 +36,18 @@ public class RestauranteProdutoController {
     }
 
     @GetMapping
-    public List<ProdutoOutDTO> listar(@PathVariable Long restauranteId) {
+    public List<ProdutoOutDTO> listar(@PathVariable Long restauranteId, @RequestParam(required = false) boolean incluirInativos) {
         Restaurante restaurante = cadastroRestauranteService.buscarOuFalhar(restauranteId);
-        List<Produto> todosProdutos = produtoRepository.findByRestaurante(restaurante);
+
+        System.out.println(incluirInativos);
+
+        List<Produto> todosProdutos = null;
+
+        if (incluirInativos) {
+            todosProdutos = produtoRepository.findTodosByRestaurante(restaurante);
+        } else {
+            todosProdutos = produtoRepository.findAtivosByRestaurante(restaurante);
+        }
 
         return produtoDTOAssembler.toCollectionDTO(todosProdutos);
     }

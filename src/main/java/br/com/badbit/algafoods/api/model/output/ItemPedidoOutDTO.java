@@ -10,7 +10,7 @@ import java.util.UUID;
 @Setter
 public class ItemPedidoOutDTO {
 
-    private UUID codigo;
+    private Long id;
     private String produtoNome;
     private Integer quantidade;
     private BigDecimal precoUnitario;

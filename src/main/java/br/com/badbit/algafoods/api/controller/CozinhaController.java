@@ -7,6 +7,10 @@ import br.com.badbit.algafoods.api.model.output.CozinhaOutDTO;
 import br.com.badbit.algafoods.domain.model.Cozinha;
 import br.com.badbit.algafoods.domain.repository.CozinhaRepository;
 import br.com.badbit.algafoods.domain.service.CadastroCozinhaService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,9 +34,12 @@ public class CozinhaController {
     }
 
     @GetMapping
-    public List<CozinhaOutDTO> listar() {
-        List<Cozinha> cozinhas = cozinhaRepository.findAll();
-        return cozinhaDTOAssembler.toCollectionDTO(cozinhas);
+//    public Page<CozinhaOutDTO> listar(@PageableDefault(size = 2) Pageable pageable) {
+    public Page<CozinhaOutDTO> listar(Pageable pageable) {
+        Page<Cozinha> cozinhasPage = cozinhaRepository.findAll(pageable);
+        List<CozinhaOutDTO> cozinhasOutDTO = cozinhaDTOAssembler.toCollectionDTO(cozinhasPage.getContent());
+        Page<CozinhaOutDTO> cozinhasOutDTOPage = new PageImpl<>(cozinhasOutDTO, pageable, cozinhasPage.getTotalElements());
+        return cozinhasOutDTOPage;
     }
 
     @GetMapping("/{cozinhaId}")

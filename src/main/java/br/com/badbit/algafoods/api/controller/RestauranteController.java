@@ -4,10 +4,13 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import br.com.badbit.algafoods.api.model.view.RestauranteView;
 import br.com.badbit.algafoods.domain.exception.CidadeNaoEncontradaException;
 import br.com.badbit.algafoods.domain.exception.RestauranteNaoEncontradoException;
+import com.fasterxml.jackson.annotation.JsonView;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.web.bind.annotation.*;
 
 import br.com.badbit.algafoods.api.assembler.RestauranteDTOAssembler;
@@ -39,10 +42,36 @@ public class RestauranteController {
         this.restauranteModelDisassembler = restauranteModelDisassembler;
     }
 
+    @JsonView(RestauranteView.Resumo.class)
     @GetMapping
     public List<RestauranteOutDTO> listar() {
         return restauranteDTOAssembler.toCollectionDTO(restauranteRepository.findAll());
     }
+
+//    @GetMapping
+//    public MappingJacksonValue listar(@RequestParam(required = false) String projecao) {
+//        List<Restaurante> restaurantes = restauranteRepository.findAll();
+//
+//        List<RestauranteOutDTO> restaurantesModel = restauranteDTOAssembler.toCollectionDTO(restaurantes);
+//
+//        MappingJacksonValue restaurantesWrapper = new MappingJacksonValue(restaurantesModel);
+//        if ("resumo".equals(projecao)) {
+//            restaurantesWrapper.setSerializationView(RestauranteView.Resumo.class);
+//        }
+//
+//        return restaurantesWrapper;
+//    }
+
+//    @GetMapping
+//    public List<RestauranteOutDTO> listar() {
+//        return restauranteDTOAssembler.toCollectionDTO(restauranteRepository.findAll());
+//    }
+//
+//    @JsonView(RestauranteView.Resumo.class)
+//    @GetMapping(params = "projecao=resumo")
+//    public List<RestauranteOutDTO> listarResumido() {
+//        return listar();
+//    }
 
     @GetMapping("/{restauranteId}")
     public RestauranteOutDTO buscar(@PathVariable Long restauranteId) {

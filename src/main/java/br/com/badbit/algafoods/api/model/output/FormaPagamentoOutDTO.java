@@ -9,7 +9,7 @@ import java.util.UUID;
 @Setter
 public class FormaPagamentoOutDTO {
 
-    private UUID codigo;
+    private Long id;
     private String descricao;
 
 }
