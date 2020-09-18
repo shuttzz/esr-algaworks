@@ -36,4 +36,11 @@ public class FotoProduto {
     @Column(name = "updated_at", nullable = false)
     private OffsetDateTime updatedAt;
 
+    public Long getRestauranteId() {
+        if (getProduto() != null) {
+            return getProduto().getRestaurante().getId();
+        }
+        return null;
+    }
+
 }
