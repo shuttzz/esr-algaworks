@@ -4,7 +4,6 @@ import br.com.badbit.algafoods.domain.model.FotoProduto;
 import br.com.badbit.algafoods.domain.model.Pedido;
 import br.com.badbit.algafoods.domain.model.Produto;
 import br.com.badbit.algafoods.domain.model.Restaurante;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -14,7 +13,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface ProdutoRepository extends JpaRepository<Produto, Long>, ProdutoRepositoryQueries {
+public interface ProdutoRepository extends CustomJpaRepository<Produto, Long> {
 
     @Query("from Produto where restaurante.id = :restaurante and id = :produto")
     Optional<Produto> findById(@Param("restaurante") Long restauranteId, @Param("produto") Long produtoId);
