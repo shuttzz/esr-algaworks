@@ -1,6 +1,5 @@
 package br.com.badbit.algafoods.core.storage;
 
-import com.amazonaws.regions.Regions;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -34,10 +33,7 @@ public class StorageProperties {
     @Setter
     public class S3 {
 
-        private String idChaveAcesso;
-        private String chaveAcessoSecreta;
         private String bucket;
-        private Regions regiao;
         private String diretorioFotos;
 
     }

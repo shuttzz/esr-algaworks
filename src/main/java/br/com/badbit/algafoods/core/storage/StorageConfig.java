@@ -1,5 +1,6 @@
 package br.com.badbit.algafoods.core.storage;
 
+import br.com.badbit.algafoods.core.amazon.AmazonDatasCredentials;
 import br.com.badbit.algafoods.domain.service.FotoStorageService;
 import br.com.badbit.algafoods.infrastructure.service.storage.LocalStorageServiceImpl;
 import br.com.badbit.algafoods.infrastructure.service.storage.S3FotoStorageServiceImpl;
@@ -15,21 +16,20 @@ import org.springframework.context.annotation.Configuration;
 public class StorageConfig {
 
     private StorageProperties storageProperties;
+    private AmazonDatasCredentials amazonDatasCredentials;
 
-    public StorageConfig(StorageProperties storageProperties) {
+    public StorageConfig(StorageProperties storageProperties, AmazonDatasCredentials amazonDatasCredentials) {
         this.storageProperties = storageProperties;
+        this.amazonDatasCredentials = amazonDatasCredentials;
     }
 
     @Bean
     @ConditionalOnProperty(name = "algafood.storage.tipo-storage", havingValue = "s3")
     public AmazonS3 amazonS3() {
-        var credentials = new BasicAWSCredentials(
-                storageProperties.getS3().getIdChaveAcesso(),
-                storageProperties.getS3().getChaveAcessoSecreta()
-        );
+        var credentials = amazonDatasCredentials.getCredentials();
         return AmazonS3ClientBuilder.standard()
                 .withCredentials(new AWSStaticCredentialsProvider(credentials))
-                .withRegion(storageProperties.getS3().getRegiao())
+                .withRegion(amazonDatasCredentials.getRegiao())
                 .build();
     }
 

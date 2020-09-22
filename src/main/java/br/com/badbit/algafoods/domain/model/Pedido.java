@@ -8,18 +8,20 @@ import java.util.UUID;
 
 import javax.persistence.*;
 
+import br.com.badbit.algafoods.domain.event.PedidoConfirmadoEvent;
 import br.com.badbit.algafoods.domain.exception.NegocioException;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.springframework.data.domain.AbstractAggregateRoot;
 
 @Data
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @Entity
 @Table(name = "pedidos")
-public class Pedido {
+public class Pedido extends AbstractAggregateRoot<Pedido> {
 
     @Id
     @SequenceGenerator(name = "pedidos_id_seq", sequenceName = "pedidos_id_seq", allocationSize = 1, initialValue = 1)
@@ -88,6 +90,7 @@ public class Pedido {
     public void confirmar() {
         setStatusPedido(StatusPedido.CONFIRMADO);
         setDataConfirmacao(OffsetDateTime.now());
+        registerEvent(new PedidoConfirmadoEvent(this));
     }
 
     public void entregar() {
