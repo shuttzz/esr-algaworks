@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import javax.persistence.*;
 
+import br.com.badbit.algafoods.domain.event.PedidoCanceladoEvent;
 import br.com.badbit.algafoods.domain.event.PedidoConfirmadoEvent;
 import br.com.badbit.algafoods.domain.exception.NegocioException;
 import org.hibernate.annotations.CreationTimestamp;
@@ -101,6 +102,7 @@ public class Pedido extends AbstractAggregateRoot<Pedido> {
     public void cancelar() {
         setStatusPedido(StatusPedido.CANCELADO);
         setDataCancelamento(OffsetDateTime.now());
+        registerEvent(new PedidoCanceladoEvent(this));
     }
 
     private void setStatus(StatusPedido novoStatus) {

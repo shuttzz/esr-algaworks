@@ -32,6 +32,8 @@ public class FluxoStatusPedidoService {
     public void cancelar(UUID codigoPedido) {
         Pedido pedido = emissaoPedidoService.buscarOuFalhar(codigoPedido);
         pedido.cancelar();
+
+        pedidoRepository.save(pedido);
     }
 
     @Transactional

@@ -1,19 +1,18 @@
 package br.com.badbit.algafoods.domain.listener;
 
-import br.com.badbit.algafoods.domain.event.PedidoConfirmadoEvent;
+import br.com.badbit.algafoods.domain.event.PedidoCanceladoEvent;
 import br.com.badbit.algafoods.domain.model.Pedido;
 import br.com.badbit.algafoods.domain.service.EnvioEmailService;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 @Component
-public class NotificacaoClientePedidoConfirmadoListener {
+public class NotificacaoClientePedidoCanceladoListener {
 
     private EnvioEmailService envioEmailService;
 
-    public NotificacaoClientePedidoConfirmadoListener(EnvioEmailService envioEmailService) {
+    public NotificacaoClientePedidoCanceladoListener(EnvioEmailService envioEmailService) {
         this.envioEmailService = envioEmailService;
     }
 
@@ -24,11 +23,11 @@ public class NotificacaoClientePedidoConfirmadoListener {
     // e também se ocorrer um erro ao tentar enviar o e-mail o pedido também não será atualizado
 //    @EventListener
     @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
-    public void aoConfirmarPedido(PedidoConfirmadoEvent event) {
+    public void aoCancelarPedido(PedidoCanceladoEvent event) {
         Pedido pedido = event.getPedido();
         var mensagem = EnvioEmailService.Mensagem.builder()
-                .assunto(pedido.getRestaurante().getNome() + " - Pedido confirmado")
-                .corpo("pedido-confirmado.html")
+                .assunto(pedido.getRestaurante().getNome() + " - Pedido cancelado")
+                .corpo("pedido-cancelado.html")
                 .variavel("pedido", pedido)
                 .destinatario(pedido.getCliente().getEmail())
                 .build();
