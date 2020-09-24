@@ -7,14 +7,21 @@ import br.com.badbit.algafoods.api.model.output.FormaPagamentoOutDTO;
 import br.com.badbit.algafoods.domain.model.FormaPagamento;
 import br.com.badbit.algafoods.domain.repository.FormaPagamentoRepository;
 import br.com.badbit.algafoods.domain.service.CadastroFormaPagamentoService;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.ServletWebRequest;
+import org.springframework.web.filter.ShallowEtagHeaderFilter;
 
 import javax.validation.Valid;
+import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @RestController
-@RequestMapping("/formas-pagamento")
+@RequestMapping(path = "/formas-pagamento", produces = MediaType.APPLICATION_JSON_VALUE)
 public class FormaPagamentoController {
 
     private FormaPagamentoRepository formaPagamentoRepository;
@@ -31,9 +38,29 @@ public class FormaPagamentoController {
     }
 
     @GetMapping
-    public List<FormaPagamentoOutDTO> listar() {
+    public ResponseEntity<List<FormaPagamentoOutDTO>> listar(ServletWebRequest request) {
+        ShallowEtagHeaderFilter.disableContentCaching(request.getRequest()); // Desabilitar o ShallowEtag para essa requisição
+
+        String eTag = "0";
+
+        OffsetDateTime dataUltimaAtualizacao = formaPagamentoRepository.getDataUltimaAtualizacao();
+
+        if (dataUltimaAtualizacao != null) {
+            eTag = String.valueOf(dataUltimaAtualizacao.toEpochSecond());
+        }
+
+        // Aqui verifica se vai precisar continuar o processamento
+        if (request.checkNotModified(eTag)) {
+            return null;
+        }
+
         List<FormaPagamento> formasPagamento = formaPagamentoRepository.findAll();
-        return formaPagamentoDTOAssembler.toCollectionDTO(formasPagamento);
+        List<FormaPagamentoOutDTO> formaPagamentoOutDTOS = formaPagamentoDTOAssembler.toCollectionDTO(formasPagamento);
+
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(10, TimeUnit.SECONDS).cachePublic())
+                .eTag(eTag)
+                .body(formaPagamentoOutDTOS);
     }
 
     @GetMapping("/{formaPagamentoId}")
