@@ -2,15 +2,18 @@ package br.com.badbit.algafoods.api.model.output;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.hateoas.RepresentationModel;
+import org.springframework.hateoas.server.core.Relation;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
+@Relation(collectionRelation = "pedidos")
 @Getter
 @Setter
-public class PedidoOutDTO {
+public class PedidoOutDTO extends RepresentationModel<PedidoOutDTO> {
 
     private UUID codigo;
     private BigDecimal subtotal;

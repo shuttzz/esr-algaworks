@@ -11,6 +11,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,27 +27,34 @@ public class CozinhaController {
     private CadastroCozinhaService cadastroCozinhaService;
     private CozinhaDTOAssembler cozinhaDTOAssembler;
     private CozinhaInputDisassembler cozinhaInputDisassembler;
+    private PagedResourcesAssembler<Cozinha> pagedResourcesAssembler;
 
-    public CozinhaController(CozinhaRepository cozinhaRepository, CadastroCozinhaService cadastroCozinhaService, CozinhaDTOAssembler cozinhaDTOAssembler, CozinhaInputDisassembler cozinhaInputDisassembler) {
+    public CozinhaController(CozinhaRepository cozinhaRepository, CadastroCozinhaService cadastroCozinhaService,
+                             CozinhaDTOAssembler cozinhaDTOAssembler, CozinhaInputDisassembler cozinhaInputDisassembler,
+                             PagedResourcesAssembler<Cozinha> pagedResourcesAssembler) {
         this.cozinhaRepository = cozinhaRepository;
         this.cadastroCozinhaService = cadastroCozinhaService;
         this.cozinhaDTOAssembler = cozinhaDTOAssembler;
         this.cozinhaInputDisassembler = cozinhaInputDisassembler;
+        this.pagedResourcesAssembler = pagedResourcesAssembler;
     }
 
     @GetMapping
 //    public Page<CozinhaOutDTO> listar(@PageableDefault(size = 2) Pageable pageable) {
-    public Page<CozinhaOutDTO> listar(Pageable pageable) {
+    public PagedModel<CozinhaOutDTO> listar(Pageable pageable) {
         Page<Cozinha> cozinhasPage = cozinhaRepository.findAll(pageable);
-        List<CozinhaOutDTO> cozinhasOutDTO = cozinhaDTOAssembler.toCollectionDTO(cozinhasPage.getContent());
-        Page<CozinhaOutDTO> cozinhasOutDTOPage = new PageImpl<>(cozinhasOutDTO, pageable, cozinhasPage.getTotalElements());
+
+//        List<CozinhaOutDTO> cozinhasOutDTO = cozinhaDTOAssembler.toCollectionDTO(cozinhasPage.getContent());
+//        Page<CozinhaOutDTO> cozinhasOutDTOPage = new PageImpl<>(cozinhasOutDTO, pageable, cozinhasPage.getTotalElements());
+        PagedModel<CozinhaOutDTO> cozinhasOutDTOPage = pagedResourcesAssembler.toModel(cozinhasPage, cozinhaDTOAssembler);
+
         return cozinhasOutDTOPage;
     }
 
     @GetMapping("/{cozinhaId}")
     public CozinhaOutDTO buscar(@PathVariable Long cozinhaId) {
         Cozinha cozinha = cadastroCozinhaService.buscarOuFalhar(cozinhaId);
-        return cozinhaDTOAssembler.toDTO(cozinha);
+        return cozinhaDTOAssembler.toModel(cozinha);
     }
     
     @PostMapping
@@ -53,7 +62,7 @@ public class CozinhaController {
     public CozinhaOutDTO adicionar(@RequestBody @Valid CozinhaInDTO cozinhaInDTO) {
         Cozinha cozinha = cozinhaInputDisassembler.toDomainObject(cozinhaInDTO);
         cozinha = cadastroCozinhaService.salvar(cozinha);
-        return cozinhaDTOAssembler.toDTO(cozinha);
+        return cozinhaDTOAssembler.toModel(cozinha);
     }
 
     @PutMapping("/{cozinhaId}")
@@ -61,7 +70,7 @@ public class CozinhaController {
         Cozinha cozinhaAtual = cadastroCozinhaService.buscarOuFalhar(cozinhaId);
         cozinhaInputDisassembler.copyToDomainObject(cozinhaInDTO, cozinhaAtual);
         cozinhaAtual = cadastroCozinhaService.salvar(cozinhaAtual);
-        return cozinhaDTOAssembler.toDTO(cozinhaAtual);
+        return cozinhaDTOAssembler.toModel(cozinhaAtual);
     }
 
     @DeleteMapping("/{cozinhaId}")

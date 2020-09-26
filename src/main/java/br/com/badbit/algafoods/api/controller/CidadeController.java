@@ -1,15 +1,17 @@
 package br.com.badbit.algafoods.api.controller;
 
+import br.com.badbit.algafoods.api.ResourceUriHelper;
 import br.com.badbit.algafoods.api.assembler.CidadeDTOAssembler;
 import br.com.badbit.algafoods.api.assembler.CidadeInputDisassembler;
-import br.com.badbit.algafoods.api.openapi.controller.CidadeControllerOpenApi;
 import br.com.badbit.algafoods.api.model.input.CidadeInDTO;
 import br.com.badbit.algafoods.api.model.output.CidadeOutDTO;
+import br.com.badbit.algafoods.api.openapi.controller.CidadeControllerOpenApi;
 import br.com.badbit.algafoods.domain.exception.EstadoNaoEncontradoException;
 import br.com.badbit.algafoods.domain.exception.NegocioException;
 import br.com.badbit.algafoods.domain.model.Cidade;
 import br.com.badbit.algafoods.domain.repository.CidadeRepository;
 import br.com.badbit.algafoods.domain.service.CadastroCidadeService;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -35,16 +37,16 @@ public class CidadeController implements CidadeControllerOpenApi {
 
     @Override
     @GetMapping
-    public List<CidadeOutDTO> listar() {
+    public CollectionModel<CidadeOutDTO> listar() {
         List<Cidade> cidades = cidadeRepository.findAll();
-        return cidadeDTOAssembler.toCollectionDTO(cidades);
+        return cidadeDTOAssembler.toCollectionModel(cidades);
     }
 
     @Override
     @GetMapping("/{cidadeId}")
     public CidadeOutDTO buscar(@PathVariable Long cidadeId) {
         Cidade cidade = cadastroCidadeService.buscarOuFalhar(cidadeId);
-        return cidadeDTOAssembler.toDTO(cidade);
+        return cidadeDTOAssembler.toModel(cidade);
     }
 
     @Override
@@ -54,7 +56,13 @@ public class CidadeController implements CidadeControllerOpenApi {
         try {
             Cidade cidade = cidadeInputDisassembler.toDomainObject(cidadeInDTO);
             cidade = cadastroCidadeService.salvar(cidade);
-            return cidadeDTOAssembler.toDTO(cidade);
+
+            CidadeOutDTO cidadeOutDTO =  cidadeDTOAssembler.toModel(cidade);
+
+            // Adiconar o Location ao header da response
+            ResourceUriHelper.addUriInResponseHeader(cidadeOutDTO.getId());
+
+            return cidadeOutDTO;
         } catch (EstadoNaoEncontradoException e) {
             throw new NegocioException(e.getMessage(), e);
         }
@@ -67,7 +75,7 @@ public class CidadeController implements CidadeControllerOpenApi {
             Cidade cidadeAtual = cadastroCidadeService.buscarOuFalhar(cidadeId);
             cidadeInputDisassembler.copyToDomainObject(cidadeInDTO, cidadeAtual);
             cidadeAtual = cadastroCidadeService.salvar(cidadeAtual);
-            return cidadeDTOAssembler.toDTO(cidadeAtual);
+            return cidadeDTOAssembler.toModel(cidadeAtual);
         } catch (EstadoNaoEncontradoException e) {
             throw new NegocioException(e.getMessage(), e);
         }

@@ -7,6 +7,7 @@ import br.com.badbit.algafoods.api.model.output.EstadoOutDTO;
 import br.com.badbit.algafoods.domain.model.Estado;
 import br.com.badbit.algafoods.domain.repository.EstadoRepository;
 import br.com.badbit.algafoods.domain.service.CadastroEstadoService;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,15 +31,15 @@ public class EstadoController {
     }
 
     @GetMapping
-    public List<EstadoOutDTO> listar() {
+    public CollectionModel<EstadoOutDTO> listar() {
         List<Estado> estados = estadoRepository.findAll();
-        return estadoDTOAssembler.toCollectionDTO(estados);
+        return estadoDTOAssembler.toCollectionModel(estados);
     }
 
     @GetMapping("/{estadoId}")
     public EstadoOutDTO buscar(@PathVariable Long estadoId) {
         Estado estado = cadastroEstadoService.buscarOuFalhar(estadoId);
-        return estadoDTOAssembler.toDTO(estado);
+        return estadoDTOAssembler.toModel(estado);
     }
 
     @PostMapping
@@ -46,7 +47,7 @@ public class EstadoController {
     public EstadoOutDTO salvar(@RequestBody @Valid EstadoInDTO estadoInDTO) {
         Estado estado = estadoInputDisassembler.toDomainObject(estadoInDTO);
         estado = cadastroEstadoService.salvar(estado);
-        return estadoDTOAssembler.toDTO(estado);
+        return estadoDTOAssembler.toModel(estado);
     }
 
     @PutMapping("/{estadoId}")
@@ -56,7 +57,7 @@ public class EstadoController {
         estadoInputDisassembler.copyToDomainObject(estadoInDTO, estadoAtual);
         estadoAtual = cadastroEstadoService.salvar(estadoAtual);
 
-        return estadoDTOAssembler.toDTO(estadoAtual);
+        return estadoDTOAssembler.toModel(estadoAtual);
     }
 
     @DeleteMapping("/{estadoId}")

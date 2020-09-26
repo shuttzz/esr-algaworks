@@ -5,6 +5,7 @@ import br.com.badbit.algafoods.api.model.output.CidadeOutDTO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.springframework.hateoas.CollectionModel;
 
 import java.util.List;
 
@@ -12,7 +13,7 @@ import java.util.List;
 public interface CidadeControllerOpenApi {
 
     @ApiOperation("Listagem de cidades")
-    List<CidadeOutDTO> listar();
+    CollectionModel<CidadeOutDTO> listar();
 
     CidadeOutDTO buscar(@ApiParam(value = "ID de uma cidade") Long cidadeId);
 

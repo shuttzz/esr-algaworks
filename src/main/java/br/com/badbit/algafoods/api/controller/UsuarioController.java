@@ -9,6 +9,7 @@ import br.com.badbit.algafoods.api.model.output.UsuarioOutDTO;
 import br.com.badbit.algafoods.domain.model.Usuario;
 import br.com.badbit.algafoods.domain.repository.UsuarioRepository;
 import br.com.badbit.algafoods.domain.service.CadastroUsuarioService;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,15 +33,15 @@ public class UsuarioController {
     }
 
     @GetMapping
-    public List<UsuarioOutDTO> listar() {
+    public CollectionModel<UsuarioOutDTO> listar() {
         List<Usuario> grupos = usuarioRepository.findAll();
-        return usuarioDTOAssembler.toCollectionDTO(grupos);
+        return usuarioDTOAssembler.toCollectionModel(grupos);
     }
 
     @GetMapping("/{usuarioId}")
     public UsuarioOutDTO buscar(@PathVariable Long usuarioId) {
         Usuario usuario = cadastroUsuarioService.buscarOuFalhar(usuarioId);
-        return usuarioDTOAssembler.toDTO(usuario);
+        return usuarioDTOAssembler.toModel(usuario);
     }
 
     @PostMapping
@@ -48,7 +49,7 @@ public class UsuarioController {
     public UsuarioOutDTO salvar(@RequestBody @Valid UsuarioComSenhaInDTO usuarioInDTO) {
         Usuario usuario = usuarioInputDisassembler.toDomainObject(usuarioInDTO);
         usuario = cadastroUsuarioService.salvar(usuario);
-        return usuarioDTOAssembler.toDTO(usuario);
+        return usuarioDTOAssembler.toModel(usuario);
     }
 
     @PutMapping("/{usuarioId}")
@@ -58,7 +59,7 @@ public class UsuarioController {
         usuarioInputDisassembler.copyToDomainObject(usuarioInDTO, usuarioAtual);
         usuarioAtual = cadastroUsuarioService.salvar(usuarioAtual);
 
-        return usuarioDTOAssembler.toDTO(usuarioAtual);
+        return usuarioDTOAssembler.toModel(usuarioAtual);
     }
 
     @PutMapping("/{usuarioId}/senha")

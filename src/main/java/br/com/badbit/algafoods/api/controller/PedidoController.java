@@ -6,6 +6,7 @@ import br.com.badbit.algafoods.api.assembler.PedidoResumoDTOAssembler;
 import br.com.badbit.algafoods.api.model.input.PedidoInDTO;
 import br.com.badbit.algafoods.api.model.output.PedidoOutDTO;
 import br.com.badbit.algafoods.api.model.output.PedidoResumoOutDTO;
+import br.com.badbit.algafoods.core.data.PageWrapper;
 import br.com.badbit.algafoods.core.data.PageableTranslator;
 import br.com.badbit.algafoods.domain.exception.EntidadeNaoEncontradaException;
 import br.com.badbit.algafoods.domain.exception.NegocioException;
@@ -16,9 +17,12 @@ import br.com.badbit.algafoods.domain.filter.PedidoFilter;
 import br.com.badbit.algafoods.domain.service.EmissaoPedidoService;
 import br.com.badbit.algafoods.infrastructure.repository.spec.PedidoSpecs;
 import com.google.common.collect.ImmutableMap;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,6 +40,9 @@ public class PedidoController {
     private PedidoResumoDTOAssembler pedidoResumoDTOAssembler;
     private PedidoInputDisassembler pedidoInputDisassembler;
 
+    @Autowired
+    private PagedResourcesAssembler<Pedido> pagedResourcesAssembler;
+
     public PedidoController(PedidoRepository pedidoRepository, EmissaoPedidoService emissaoPedidoService,
                             PedidoDTOAssembler pedidoDTOAssembler, PedidoResumoDTOAssembler pedidoResumoDTOAssembler,
                             PedidoInputDisassembler pedidoInputDisassembler) {
@@ -47,13 +54,13 @@ public class PedidoController {
     }
 
     @GetMapping
-    public Page<PedidoResumoOutDTO> pesquisar(PedidoFilter filtro, Pageable pageable) {
-        pageable = traduzirPageable(pageable);
-        Page<Pedido> todosPedidosPage = pedidoRepository.findAll(PedidoSpecs.usandoFiltro(filtro), pageable);
-        List<PedidoResumoOutDTO> pedidosOutDTO = pedidoResumoDTOAssembler.toCollectionDTO(todosPedidosPage.getContent());
-        Page<PedidoResumoOutDTO> todosPedidosOutDTOPage = new PageImpl<>(pedidosOutDTO, pageable, todosPedidosPage.getTotalElements());
+    public PagedModel<PedidoResumoOutDTO> pesquisar(PedidoFilter filtro, Pageable pageable) {
+        Pageable pageableTraduzido = traduzirPageable(pageable);
+        Page<Pedido> todosPedidosPage = pedidoRepository.findAll(PedidoSpecs.usandoFiltro(filtro), pageableTraduzido);
 
-        return todosPedidosOutDTOPage;
+        todosPedidosPage = new PageWrapper<>(todosPedidosPage.getContent(), pageable, todosPedidosPage.getTotalElements());
+
+        return pagedResourcesAssembler.toModel(todosPedidosPage, pedidoResumoDTOAssembler);
     }
 
 //    @GetMapping
@@ -67,7 +74,7 @@ public class PedidoController {
     public PedidoOutDTO buscar(@PathVariable UUID codigoPedido) {
         Pedido pedido = emissaoPedidoService.buscarOuFalhar(codigoPedido);
 
-        return pedidoDTOAssembler.toDTO(pedido);
+        return pedidoDTOAssembler.toModel(pedido);
     }
 
     @PostMapping
@@ -82,7 +89,7 @@ public class PedidoController {
 
             novoPedido = emissaoPedidoService.emitir(novoPedido);
 
-            return pedidoDTOAssembler.toDTO(novoPedido);
+            return pedidoDTOAssembler.toModel(novoPedido);
         } catch (EntidadeNaoEncontradaException e) {
             throw new NegocioException(e.getMessage(), e);
         }
