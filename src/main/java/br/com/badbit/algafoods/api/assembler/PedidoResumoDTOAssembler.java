@@ -41,7 +41,7 @@ public class PedidoResumoDTOAssembler extends RepresentationModelAssemblerSuppor
 
         pedidoResumoOutDTO.add(linkTo(WebMvcLinkBuilder
                 .methodOn(PedidoController.class).buscar(pedidoResumoOutDTO.getCodigo())).withSelfRel());
-        pedidoResumoOutDTO.add(algaLinks.linkToPedidos());
+        pedidoResumoOutDTO.add(algaLinks.linkToPedidos("pedidos"));
         pedidoResumoOutDTO.getRestaurante().add(algaLinks.linkToRestaurante(pedido.getRestaurante().getId()));
         pedidoResumoOutDTO.getCliente().add(algaLinks.linkToUsuario(pedido.getCliente().getId()));
 

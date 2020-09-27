@@ -7,6 +7,7 @@ import br.com.badbit.algafoods.api.model.output.FormaPagamentoOutDTO;
 import br.com.badbit.algafoods.domain.model.FormaPagamento;
 import br.com.badbit.algafoods.domain.repository.FormaPagamentoRepository;
 import br.com.badbit.algafoods.domain.service.CadastroFormaPagamentoService;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -38,7 +39,7 @@ public class FormaPagamentoController {
     }
 
     @GetMapping
-    public ResponseEntity<List<FormaPagamentoOutDTO>> listar(ServletWebRequest request) {
+        public ResponseEntity<CollectionModel<FormaPagamentoOutDTO>> listar(ServletWebRequest request) {
         ShallowEtagHeaderFilter.disableContentCaching(request.getRequest()); // Desabilitar o ShallowEtag para essa requisição
 
         String eTag = "0";
@@ -55,7 +56,7 @@ public class FormaPagamentoController {
         }
 
         List<FormaPagamento> formasPagamento = formaPagamentoRepository.findAll();
-        List<FormaPagamentoOutDTO> formaPagamentoOutDTOS = formaPagamentoDTOAssembler.toCollectionDTO(formasPagamento);
+        CollectionModel<FormaPagamentoOutDTO> formaPagamentoOutDTOS = formaPagamentoDTOAssembler.toCollectionModel(formasPagamento);
 
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.maxAge(10, TimeUnit.SECONDS).cachePublic())
@@ -66,7 +67,7 @@ public class FormaPagamentoController {
     @GetMapping("/{formaPagamentoId}")
     public FormaPagamentoOutDTO buscar(@PathVariable Long formaPagamentoId) {
         FormaPagamento formaPagamento = cadastroFormaPagamentoService.buscarOuFalhar(formaPagamentoId);
-        return formaPagamentoDTOAssembler.toDTO(formaPagamento);
+        return formaPagamentoDTOAssembler.toModel(formaPagamento);
     }
 
     @PostMapping
@@ -74,7 +75,7 @@ public class FormaPagamentoController {
     public FormaPagamentoOutDTO salvar(@RequestBody @Valid FormaPagamentoInDTO formaPagamentoInDTO) {
         FormaPagamento formaPagamento = formaPagamentoInputDisassembler.toDomainObject(formaPagamentoInDTO);
         formaPagamento = cadastroFormaPagamentoService.salvar(formaPagamento);
-        return formaPagamentoDTOAssembler.toDTO(formaPagamento);
+        return formaPagamentoDTOAssembler.toModel(formaPagamento);
     }
 
     @PutMapping("/{formaPagamentoId}")
@@ -84,7 +85,7 @@ public class FormaPagamentoController {
         formaPagamentoInputDisassembler.copyToDomainObject(formaPagamentoInDTO, formaPagamentoAtual);
         formaPagamentoAtual = cadastroFormaPagamentoService.salvar(formaPagamentoAtual);
 
-        return formaPagamentoDTOAssembler.toDTO(formaPagamentoAtual);
+        return formaPagamentoDTOAssembler.toModel(formaPagamentoAtual);
     }
 
     @DeleteMapping("/{formaPagamentoId}")

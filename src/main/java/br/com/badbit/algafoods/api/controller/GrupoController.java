@@ -7,6 +7,7 @@ import br.com.badbit.algafoods.api.model.output.GrupoOutDTO;
 import br.com.badbit.algafoods.domain.model.Grupo;
 import br.com.badbit.algafoods.domain.repository.GrupoRepository;
 import br.com.badbit.algafoods.domain.service.CadastroGrupoService;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,15 +31,15 @@ public class GrupoController {
     }
 
     @GetMapping
-    public List<GrupoOutDTO> listar() {
+    public CollectionModel<GrupoOutDTO> listar() {
         List<Grupo> grupos = grupoRepository.findAll();
-        return grupoDTOAssembler.toCollectionDTO(grupos);
+        return grupoDTOAssembler.toCollectionModel(grupos);
     }
 
     @GetMapping("/{grupoId}")
     public GrupoOutDTO buscar(@PathVariable Long grupoId) {
         Grupo grupo = cadastroGrupoService.buscarOuFalhar(grupoId);
-        return grupoDTOAssembler.toDTO(grupo);
+        return grupoDTOAssembler.toModel(grupo);
     }
 
     @PostMapping
@@ -46,7 +47,7 @@ public class GrupoController {
     public GrupoOutDTO salvar(@RequestBody @Valid GrupoInDTO grupoInDTO) {
         Grupo grupo = grupoInputDisassembler.toDomainObject(grupoInDTO);
         grupo = cadastroGrupoService.salvar(grupo);
-        return grupoDTOAssembler.toDTO(grupo);
+        return grupoDTOAssembler.toModel(grupo);
     }
 
     @PutMapping("/{grupoId}")
@@ -56,7 +57,7 @@ public class GrupoController {
         grupoInputDisassembler.copyToDomainObject(grupoInDTO, grupoAtual);
         grupoAtual = cadastroGrupoService.salvar(grupoAtual);
 
-        return grupoDTOAssembler.toDTO(grupoAtual);
+        return grupoDTOAssembler.toModel(grupoAtual);
     }
 
     @DeleteMapping("/{grupoId}")

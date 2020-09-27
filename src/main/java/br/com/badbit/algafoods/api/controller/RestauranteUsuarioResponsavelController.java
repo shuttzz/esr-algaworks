@@ -7,11 +7,9 @@ import br.com.badbit.algafoods.domain.model.Restaurante;
 import br.com.badbit.algafoods.domain.service.CadastroRestauranteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
-import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping(value = "/restaurantes/{restauranteId}/responsaveis")
@@ -19,13 +17,12 @@ public class RestauranteUsuarioResponsavelController {
 
     private CadastroRestauranteService cadastroRestauranteService;
     private UsuarioDTOAssembler usuarioDTOAssembler;
+    private final AlgaLinks algaLinks;
 
-    @Autowired
-    private AlgaLinks algaLinks;
-
-    public RestauranteUsuarioResponsavelController(CadastroRestauranteService cadastroRestauranteService, UsuarioDTOAssembler usuarioDTOAssembler) {
+    public RestauranteUsuarioResponsavelController(CadastroRestauranteService cadastroRestauranteService, UsuarioDTOAssembler usuarioDTOAssembler, AlgaLinks algaLinks) {
         this.cadastroRestauranteService = cadastroRestauranteService;
         this.usuarioDTOAssembler = usuarioDTOAssembler;
+        this.algaLinks = algaLinks;
     }
 
     @GetMapping
@@ -39,14 +36,18 @@ public class RestauranteUsuarioResponsavelController {
 
     @DeleteMapping("/{usuarioId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void desassociar(@PathVariable Long restauranteId, @PathVariable Long usuarioId) {
+    public ResponseEntity<Void> desassociar(@PathVariable Long restauranteId, @PathVariable Long usuarioId) {
         cadastroRestauranteService.desassociarResponsavel(restauranteId, usuarioId);
+
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{usuarioId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void associar(@PathVariable Long restauranteId, @PathVariable Long usuarioId) {
+    public ResponseEntity<Void> associar(@PathVariable Long restauranteId, @PathVariable Long usuarioId) {
         cadastroRestauranteService.associarResponsavel(restauranteId, usuarioId);
+
+        return ResponseEntity.noContent().build();
     }
 
 }

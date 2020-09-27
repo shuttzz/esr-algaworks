@@ -1,31 +1,34 @@
 package br.com.badbit.algafoods.api.assembler;
 
+import br.com.badbit.algafoods.api.AlgaLinks;
 import br.com.badbit.algafoods.api.model.output.PermissaoOutDTO;
 import br.com.badbit.algafoods.domain.model.Permissao;
 import org.modelmapper.ModelMapper;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.stereotype.Component;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
-
 @Component
-public class PermissaoDTOAssembler {
+public class PermissaoDTOAssembler implements RepresentationModelAssembler<Permissao, PermissaoOutDTO> {
 
     private ModelMapper modelMapper;
+    private final AlgaLinks algaLinks;
 
-    public PermissaoDTOAssembler(ModelMapper modelMapper) {
+    public PermissaoDTOAssembler(ModelMapper modelMapper, AlgaLinks algaLinks) {
         this.modelMapper = modelMapper;
+        this.algaLinks = algaLinks;
     }
 
-    public PermissaoOutDTO toDTO(Permissao permissao) {
-        return modelMapper.map(permissao, PermissaoOutDTO.class);
+    @Override
+    public PermissaoOutDTO toModel(Permissao permissao) {
+        PermissaoOutDTO permissaoModel = modelMapper.map(permissao, PermissaoOutDTO.class);
+        return permissaoModel;
     }
 
-    public List<PermissaoOutDTO> toCollectionDTO(Collection<Permissao> permissoes) {
-        return permissoes.stream()
-                .map(permissao -> toDTO(permissao))
-                .collect(Collectors.toList());
+    @Override
+    public CollectionModel<PermissaoOutDTO> toCollectionModel(Iterable<? extends Permissao> permissoes) {
+        return RepresentationModelAssembler.super.toCollectionModel(permissoes)
+                .add(algaLinks.linkToPermissoes());
     }
 
 }

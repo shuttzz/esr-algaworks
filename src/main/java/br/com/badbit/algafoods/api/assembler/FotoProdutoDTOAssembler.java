@@ -1,30 +1,36 @@
 package br.com.badbit.algafoods.api.assembler;
 
+import br.com.badbit.algafoods.api.AlgaLinks;
+import br.com.badbit.algafoods.api.controller.RestauranteProdutoFotoController;
 import br.com.badbit.algafoods.api.model.output.FotoProdutoOutDTO;
 import br.com.badbit.algafoods.domain.model.FotoProduto;
 import org.modelmapper.ModelMapper;
+import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 @Component
-public class FotoProdutoDTOAssembler {
+public class FotoProdutoDTOAssembler extends RepresentationModelAssemblerSupport<FotoProduto, FotoProdutoOutDTO> {
 
     private ModelMapper modelMapper;
+    private final AlgaLinks algaLinks;
 
-    public FotoProdutoDTOAssembler(ModelMapper modelMapper) {
+    public FotoProdutoDTOAssembler(ModelMapper modelMapper, AlgaLinks algaLinks) {
+        super(RestauranteProdutoFotoController.class, FotoProdutoOutDTO.class);
         this.modelMapper = modelMapper;
+        this.algaLinks = algaLinks;
     }
 
-    public FotoProdutoOutDTO toDTO(FotoProduto fotoProduto) {
-        return modelMapper.map(fotoProduto, FotoProdutoOutDTO.class);
-    }
+    @Override
+    public FotoProdutoOutDTO toModel(FotoProduto foto) {
+        FotoProdutoOutDTO fotoProdutoModel = modelMapper.map(foto, FotoProdutoOutDTO.class);
 
-    public List<FotoProdutoOutDTO> toCollectionDTO(List<FotoProduto> fotoProdutos) {
-        return fotoProdutos.stream()
-                .map(fotoProduto -> toDTO(fotoProduto))
-                .collect(Collectors.toList());
+        fotoProdutoModel.add(algaLinks.linkToFotoProduto(
+                foto.getRestauranteId(), foto.getProduto().getId()));
+
+        fotoProdutoModel.add(algaLinks.linkToProduto(
+                foto.getRestauranteId(), foto.getProduto().getId(), "produto"));
+
+        return fotoProdutoModel;
     }
 
 }

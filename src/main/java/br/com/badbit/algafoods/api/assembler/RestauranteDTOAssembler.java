@@ -14,13 +14,12 @@ import org.springframework.stereotype.Component;
 public class RestauranteDTOAssembler extends RepresentationModelAssemblerSupport<Restaurante, RestauranteOutDTO> {
     
     private ModelMapper modelMapper;
-
-    @Autowired
     private AlgaLinks algaLinks;
 
-    public RestauranteDTOAssembler(ModelMapper modelMapper) {
+    public RestauranteDTOAssembler(ModelMapper modelMapper, AlgaLinks algaLinks) {
         super(RestauranteController.class, RestauranteOutDTO.class);
         this.modelMapper = modelMapper;
+        this.algaLinks = algaLinks;
     }
 
     public RestauranteOutDTO toModel(Restaurante restaurante) {
@@ -49,11 +48,15 @@ public class RestauranteDTOAssembler extends RepresentationModelAssemblerSupport
                     algaLinks.linkToRestauranteFechamento(restaurante.getId(), "fechar"));
         }
 
+        restauranteModel.add(algaLinks.linkToProdutos(restaurante.getId(), "produtos"));
+
         restauranteModel.getCozinha().add(
                 algaLinks.linkToCozinha(restaurante.getCozinha().getId()));
 
-        restauranteModel.getEndereco().getCidade().add(
-                algaLinks.linkToCidade(restaurante.getEndereco().getCidade().getId()));
+        if (restauranteModel.getEndereco() != null && restauranteModel.getEndereco().getCidade() != null) {
+            restauranteModel.getEndereco().getCidade().add(
+                    algaLinks.linkToCidade(restaurante.getEndereco().getCidade().getId()));
+        }
 
         restauranteModel.add(algaLinks.linkToRestauranteFormasPagamento(restaurante.getId(),
                 "formas-pagamento"));
