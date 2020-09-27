@@ -15,13 +15,13 @@ import org.springframework.hateoas.server.core.Relation;
 @Setter
 public class RestauranteOutDTO extends RepresentationModel<RestauranteOutDTO> {
 
-    @JsonView(RestauranteView.Resumo.class)
+//    @JsonView(RestauranteView.Resumo.class)
     private Long id;
-    @JsonView(RestauranteView.Resumo.class)
+//    @JsonView(RestauranteView.Resumo.class)
     private String nome;
-    @JsonView(RestauranteView.Resumo.class)
+//    @JsonView(RestauranteView.Resumo.class)
     private BigDecimal taxaFrete;
-    @JsonView(RestauranteView.Resumo.class)
+//    @JsonView(RestauranteView.Resumo.class)
     private CozinhaOutDTO cozinha;
     private Boolean ativo;
     private Boolean aberto;

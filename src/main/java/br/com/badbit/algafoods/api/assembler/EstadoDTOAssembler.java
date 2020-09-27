@@ -53,6 +53,6 @@ public class EstadoDTOAssembler extends RepresentationModelAssemblerSupport<Esta
     @Override
     public CollectionModel<EstadoOutDTO> toCollectionModel(Iterable<? extends Estado> estados) {
         return super.toCollectionModel(estados)
-                .add(WebMvcLinkBuilder.linkTo(EstadoController.class).withSelfRel());
+                .add(algaLinks.linkToEstados());
     }
 }

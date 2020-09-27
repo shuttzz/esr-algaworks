@@ -50,6 +50,6 @@ public class UsuarioDTOAssembler extends RepresentationModelAssemblerSupport<Usu
     @Override
     public CollectionModel<UsuarioOutDTO> toCollectionModel(Iterable<? extends Usuario> usuarios) {
         return super.toCollectionModel(usuarios)
-                .add(WebMvcLinkBuilder.linkTo(UsuarioController.class).withSelfRel());
+                .add(algaLinks.linkToUsuarios());
     }
 }

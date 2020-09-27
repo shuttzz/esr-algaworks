@@ -21,7 +21,7 @@ public class PedidoResumoOutDTO extends RepresentationModel<PedidoResumoOutDTO> 
     private BigDecimal valorTotal;
     private String status;
     private OffsetDateTime dataCriacao;
-    private RestaurantePedidoOutDTO restaurante;
+    private RestauranteApenasNomeModel restaurante;
     private UsuarioOutDTO cliente;
 
 }

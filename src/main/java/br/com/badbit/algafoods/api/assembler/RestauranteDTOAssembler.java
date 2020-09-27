@@ -1,31 +1,73 @@
 package br.com.badbit.algafoods.api.assembler;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.modelmapper.ModelMapper;
-import org.springframework.stereotype.Component;
-
+import br.com.badbit.algafoods.api.AlgaLinks;
+import br.com.badbit.algafoods.api.controller.RestauranteController;
 import br.com.badbit.algafoods.api.model.output.RestauranteOutDTO;
 import br.com.badbit.algafoods.domain.model.Restaurante;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
+import org.springframework.stereotype.Component;
 
 @Component
-public class RestauranteDTOAssembler {
+public class RestauranteDTOAssembler extends RepresentationModelAssemblerSupport<Restaurante, RestauranteOutDTO> {
     
     private ModelMapper modelMapper;
 
+    @Autowired
+    private AlgaLinks algaLinks;
+
     public RestauranteDTOAssembler(ModelMapper modelMapper) {
+        super(RestauranteController.class, RestauranteOutDTO.class);
         this.modelMapper = modelMapper;
     }
 
-    public RestauranteOutDTO toDTO(Restaurante restaurante) {
-        return modelMapper.map(restaurante, RestauranteOutDTO.class);
+    public RestauranteOutDTO toModel(Restaurante restaurante) {
+        RestauranteOutDTO restauranteModel = createModelWithId(restaurante.getId(), restaurante);
+        modelMapper.map(restaurante, restauranteModel);
+
+        restauranteModel.add(algaLinks.linkToRestaurantes("restaurantes"));
+
+        if (restaurante.ativacaoPermitida()) {
+            restauranteModel.add(
+                    algaLinks.linkToRestauranteAtivacao(restaurante.getId(), "ativar"));
+        }
+
+        if (restaurante.inativacaoPermitida()) {
+            restauranteModel.add(
+                    algaLinks.linkToRestauranteInativacao(restaurante.getId(), "inativar"));
+        }
+
+        if (restaurante.aberturaPermitida()) {
+            restauranteModel.add(
+                    algaLinks.linkToRestauranteAbertura(restaurante.getId(), "abrir"));
+        }
+
+        if (restaurante.fechamentoPermitido()) {
+            restauranteModel.add(
+                    algaLinks.linkToRestauranteFechamento(restaurante.getId(), "fechar"));
+        }
+
+        restauranteModel.getCozinha().add(
+                algaLinks.linkToCozinha(restaurante.getCozinha().getId()));
+
+        restauranteModel.getEndereco().getCidade().add(
+                algaLinks.linkToCidade(restaurante.getEndereco().getCidade().getId()));
+
+        restauranteModel.add(algaLinks.linkToRestauranteFormasPagamento(restaurante.getId(),
+                "formas-pagamento"));
+
+        restauranteModel.add(algaLinks.linkToResponsaveisRestaurante(restaurante.getId(),
+                "responsaveis"));
+
+        return restauranteModel;
     }
 
-    public List<RestauranteOutDTO> toCollectionDTO(List<Restaurante> restaurantes) {
-        return restaurantes.stream()
-                    .map(restaurante -> toDTO(restaurante))
-                    .collect(Collectors.toList());
+    @Override
+    public CollectionModel<RestauranteOutDTO> toCollectionModel(Iterable<? extends Restaurante> restaurantes) {
+        return super.toCollectionModel(restaurantes)
+                .add(algaLinks.linkToRestaurantes());
     }
 
 }

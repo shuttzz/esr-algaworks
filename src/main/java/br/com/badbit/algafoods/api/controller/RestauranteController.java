@@ -4,13 +4,16 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import br.com.badbit.algafoods.api.model.view.RestauranteView;
+import br.com.badbit.algafoods.api.assembler.RestauranteApenasNomeModelAssembler;
+import br.com.badbit.algafoods.api.assembler.RestauranteBasicoModelAssembler;
+import br.com.badbit.algafoods.api.model.output.RestauranteApenasNomeModel;
+import br.com.badbit.algafoods.api.model.output.RestauranteBasicoModel;
 import br.com.badbit.algafoods.domain.exception.CidadeNaoEncontradaException;
 import br.com.badbit.algafoods.domain.exception.RestauranteNaoEncontradoException;
-import com.fasterxml.jackson.annotation.JsonView;
-import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.converter.json.MappingJacksonValue;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import br.com.badbit.algafoods.api.assembler.RestauranteDTOAssembler;
@@ -31,6 +34,11 @@ public class RestauranteController {
     private CadastroRestauranteService cadastroRestauranteService;
     private RestauranteDTOAssembler restauranteDTOAssembler;
     private RestauranteInputDisassembler restauranteModelDisassembler;
+
+    @Autowired
+    private RestauranteBasicoModelAssembler restauranteBasicoModelAssembler;
+    @Autowired
+    private RestauranteApenasNomeModelAssembler restauranteApenasNomeModelAssembler;
     // private SmartValidator validator;
 
     public RestauranteController(RestauranteRepository restauranteRepository,
@@ -42,10 +50,17 @@ public class RestauranteController {
         this.restauranteModelDisassembler = restauranteModelDisassembler;
     }
 
-    @JsonView(RestauranteView.Resumo.class)
+//    @JsonView(RestauranteView.Resumo.class)
     @GetMapping
-    public List<RestauranteOutDTO> listar() {
-        return restauranteDTOAssembler.toCollectionDTO(restauranteRepository.findAll());
+    public CollectionModel<RestauranteBasicoModel> listar() {
+        return restauranteBasicoModelAssembler.toCollectionModel(restauranteRepository.findAll());
+    }
+
+//	@JsonView(RestauranteView.ApenasNome.class)
+    @GetMapping(params = "projecao=apenas-nome")
+    public CollectionModel<RestauranteApenasNomeModel> listarApenasNomes() {
+        return restauranteApenasNomeModelAssembler
+                .toCollectionModel(restauranteRepository.findAll());
     }
 
 //    @GetMapping
@@ -77,7 +92,7 @@ public class RestauranteController {
     public RestauranteOutDTO buscar(@PathVariable Long restauranteId) {
         Restaurante restaurante = cadastroRestauranteService.buscarOuFalhar(restauranteId);
         
-        return restauranteDTOAssembler.toDTO(restaurante);
+        return restauranteDTOAssembler.toModel(restaurante);
     }
 
     @PostMapping
@@ -85,7 +100,7 @@ public class RestauranteController {
     public RestauranteOutDTO salvar(@RequestBody @Valid RestauranteInDTO restauranteInDTO) {
         try {
             Restaurante restaurante = restauranteModelDisassembler.toDomainObject(restauranteInDTO);
-            return restauranteDTOAssembler.toDTO(cadastroRestauranteService.salvar(restaurante));
+            return restauranteDTOAssembler.toModel(cadastroRestauranteService.salvar(restaurante));
         } catch (CozinhaNaoEncontradaException | CidadeNaoEncontradaException e) {
             throw new NegocioException(e.getMessage(), e);
         }
@@ -96,7 +111,7 @@ public class RestauranteController {
         try {
             Restaurante restauranteAtual = cadastroRestauranteService.buscarOuFalhar(restauranteId);
             restauranteModelDisassembler.copyToDomainObject(restauranteInDTO, restauranteAtual);
-            return restauranteDTOAssembler.toDTO(cadastroRestauranteService.salvar(restauranteAtual));
+            return restauranteDTOAssembler.toModel(cadastroRestauranteService.salvar(restauranteAtual));
         } catch (CozinhaNaoEncontradaException | CidadeNaoEncontradaException e) {
             throw new NegocioException(e.getMessage(), e);
         }
@@ -104,8 +119,9 @@ public class RestauranteController {
 
     @PutMapping("/{restauranteId}/ativo")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void ativar(@PathVariable Long restauranteId) {
+    public ResponseEntity<Void> ativar(@PathVariable Long restauranteId) {
         cadastroRestauranteService.ativar(restauranteId);
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/ativacoes")
@@ -120,8 +136,9 @@ public class RestauranteController {
 
     @DeleteMapping("/{restauranteId}/ativo")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void inativar(@PathVariable Long restauranteId) {
+    public ResponseEntity<Void> inativar(@PathVariable Long restauranteId) {
         cadastroRestauranteService.inativar(restauranteId);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/ativacoes")
@@ -136,14 +153,16 @@ public class RestauranteController {
 
     @PutMapping("/{restauranteId}/abertura")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void abrir(@PathVariable Long restauranteId) {
+    public ResponseEntity<Void> abrir(@PathVariable Long restauranteId) {
         cadastroRestauranteService.abrir(restauranteId);
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{restauranteId}/fechamento")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void fechar(@PathVariable Long restauranteId) {
+    public ResponseEntity<Void> fechar(@PathVariable Long restauranteId) {
         cadastroRestauranteService.fechar(restauranteId);
+        return ResponseEntity.noContent().build();
     }
 
     /* @PatchMapping("/{restauranteId}")

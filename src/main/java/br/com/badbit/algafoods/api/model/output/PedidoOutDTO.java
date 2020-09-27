@@ -24,7 +24,7 @@ public class PedidoOutDTO extends RepresentationModel<PedidoOutDTO> {
     private OffsetDateTime dataConfirmacao;
     private OffsetDateTime dataEntrega;
     private OffsetDateTime dataCancelamento;
-    private RestaurantePedidoOutDTO restaurante;
+    private RestauranteApenasNomeModel restaurante;
     private UsuarioOutDTO cliente;
     private FormaPagamentoOutDTO formaPagamento;
     private EnderecoOutDTO enderecoEntrega;

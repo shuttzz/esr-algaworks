@@ -2,6 +2,7 @@ package br.com.badbit.algafoods.api.controller;
 
 import br.com.badbit.algafoods.domain.service.FluxoStatusPedidoService;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -18,20 +19,23 @@ public class FluxoStatusPedidoController {
 
     @PutMapping("/confirmacao")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void confirmar(@PathVariable UUID codigoPedido) {
+    public ResponseEntity<Void> confirmar(@PathVariable UUID codigoPedido) {
         fluxoStatusPedidoService.confirmar(codigoPedido);
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/cancelamento")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void cancelar(@PathVariable UUID codigoPedido) {
+    public ResponseEntity<Void> cancelar(@PathVariable UUID codigoPedido) {
         fluxoStatusPedidoService.cancelar(codigoPedido);
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/entrega")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void entregar(@PathVariable UUID codigoPedido) {
+    public ResponseEntity<Void> entregar(@PathVariable UUID codigoPedido) {
         fluxoStatusPedidoService.entregar(codigoPedido);
+        return ResponseEntity.noContent().build();
     }
 
 }
