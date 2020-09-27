@@ -1,9 +1,11 @@
 package br.com.badbit.algafoods.api.controller;
 
+import br.com.badbit.algafoods.api.AlgaLinks;
 import br.com.badbit.algafoods.domain.filter.VendaDiariaFilter;
 import br.com.badbit.algafoods.domain.model.dto.VendaDiaria;
 import br.com.badbit.algafoods.domain.service.VendaQueryService;
 import br.com.badbit.algafoods.domain.service.VendaReportService;
+import org.springframework.hateoas.RepresentationModel;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,10 +22,12 @@ public class EstatisticasController {
 
     private VendaQueryService vendaQueryService;
     private VendaReportService vendaReportService;
+    private AlgaLinks algaLinks;
 
-    public EstatisticasController(VendaQueryService vendaQueryService, VendaReportService vendaReportService) {
+    public EstatisticasController(VendaQueryService vendaQueryService, VendaReportService vendaReportService, AlgaLinks algaLinks) {
         this.vendaQueryService = vendaQueryService;
         this.vendaReportService = vendaReportService;
+        this.algaLinks = algaLinks;
     }
 
     @GetMapping(path = "/vendas-diarias", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -42,5 +46,17 @@ public class EstatisticasController {
                 .contentType(MediaType.APPLICATION_PDF)
                 .headers(headers)
                 .body(bytesPdf);
+    }
+
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    public EstatisticasModel estatisticas() {
+        var estatisticasModel = new EstatisticasModel();
+
+        estatisticasModel.add(algaLinks.linkToEstatisticasVendasDiarias("vendas-diarias"));
+
+        return estatisticasModel;
+    }
+
+    public static class EstatisticasModel extends RepresentationModel<EstatisticasModel> {
     }
 }
