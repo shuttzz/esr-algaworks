@@ -8,6 +8,7 @@ import br.com.badbit.algafoods.api.model.output.PedidoOutDTO;
 import br.com.badbit.algafoods.api.model.output.PedidoResumoOutDTO;
 import br.com.badbit.algafoods.core.data.PageWrapper;
 import br.com.badbit.algafoods.core.data.PageableTranslator;
+import br.com.badbit.algafoods.core.security.AlgaSecurity;
 import br.com.badbit.algafoods.domain.exception.EntidadeNaoEncontradaException;
 import br.com.badbit.algafoods.domain.exception.NegocioException;
 import br.com.badbit.algafoods.domain.model.Pedido;
@@ -17,9 +18,7 @@ import br.com.badbit.algafoods.domain.filter.PedidoFilter;
 import br.com.badbit.algafoods.domain.service.EmissaoPedidoService;
 import br.com.badbit.algafoods.infrastructure.repository.spec.PedidoSpecs;
 import com.google.common.collect.ImmutableMap;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.PagedModel;
@@ -27,7 +26,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -39,18 +37,19 @@ public class PedidoController {
     private PedidoDTOAssembler pedidoDTOAssembler;
     private PedidoResumoDTOAssembler pedidoResumoDTOAssembler;
     private PedidoInputDisassembler pedidoInputDisassembler;
-
-    @Autowired
-    private PagedResourcesAssembler<Pedido> pagedResourcesAssembler;
+    private final PagedResourcesAssembler<Pedido> pagedResourcesAssembler;
+    private AlgaSecurity algaSecurity;
 
     public PedidoController(PedidoRepository pedidoRepository, EmissaoPedidoService emissaoPedidoService,
                             PedidoDTOAssembler pedidoDTOAssembler, PedidoResumoDTOAssembler pedidoResumoDTOAssembler,
-                            PedidoInputDisassembler pedidoInputDisassembler) {
+                            PedidoInputDisassembler pedidoInputDisassembler, PagedResourcesAssembler<Pedido> pagedResourcesAssembler, AlgaSecurity algaSecurity) {
         this.pedidoRepository = pedidoRepository;
         this.emissaoPedidoService = emissaoPedidoService;
         this.pedidoDTOAssembler = pedidoDTOAssembler;
         this.pedidoResumoDTOAssembler = pedidoResumoDTOAssembler;
         this.pedidoInputDisassembler = pedidoInputDisassembler;
+        this.pagedResourcesAssembler = pagedResourcesAssembler;
+        this.algaSecurity = algaSecurity;
     }
 
     @GetMapping
@@ -83,9 +82,8 @@ public class PedidoController {
         try {
             Pedido novoPedido = pedidoInputDisassembler.toDomainObject(pedidoInDTO);
 
-            // TODO pegar usuário autenticado
             novoPedido.setCliente(new Usuario());
-            novoPedido.getCliente().setId(1L);
+            novoPedido.getCliente().setId(algaSecurity.getUsuarioId());
 
             novoPedido = emissaoPedidoService.emitir(novoPedido);
 

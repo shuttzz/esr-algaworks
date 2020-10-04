@@ -8,6 +8,7 @@ import br.com.badbit.algafoods.domain.model.Usuario;
 import br.com.badbit.algafoods.domain.repository.UsuarioRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -20,16 +21,22 @@ public class CadastroUsuarioService {
 
     private UsuarioRepository usuarioRepository;
     private CadastroGrupoService cadastroGrupoService;
+    private PasswordEncoder passwordEncoder;
 
-    public CadastroUsuarioService(UsuarioRepository usuarioRepository, CadastroGrupoService cadastroGrupoService) {
+    public CadastroUsuarioService(UsuarioRepository usuarioRepository, CadastroGrupoService cadastroGrupoService, PasswordEncoder passwordEncoder) {
         this.usuarioRepository = usuarioRepository;
         this.cadastroGrupoService = cadastroGrupoService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional
     public Usuario salvar(Usuario usuario) {
         // Retirando o usuário do contexto de persistência para que o JPA não faça o update antes de fazer o select por e-mail
         usuarioRepository.detach(usuario);
+
+        if (usuario.isNovo()) {
+            usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
+        }
 
         Optional<Usuario> usuarioExistente = usuarioRepository.findByEmail(usuario.getEmail());
 
@@ -44,7 +51,7 @@ public class CadastroUsuarioService {
     public void alterarSenha(Long usuarioId, String senhaAtual, String novaSenha) {
         Usuario usuario = buscarOuFalhar(usuarioId);
 
-        if (usuario.senhaNaoCoincideCom(senhaAtual)) {
+        if (!passwordEncoder.matches(senhaAtual, usuario.getSenha())) {
             throw new NegocioException("Senha atual informada não coincide com a senha do usuário.");
         }
 

@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.JsonMappingException.Reference;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.PropertyBindingException;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.context.MessageSource;
@@ -33,6 +34,7 @@ import br.com.badbit.algafoods.domain.exception.EntidadeEmUsoException;
 import br.com.badbit.algafoods.domain.exception.EntidadeNaoEncontradaException;
 import br.com.badbit.algafoods.domain.exception.NegocioException;
 
+@Slf4j
 @ControllerAdvice
 public class ApiExceptionHanlder extends ResponseEntityExceptionHandler {
 
@@ -92,7 +94,7 @@ public class ApiExceptionHanlder extends ResponseEntityExceptionHandler {
         ProblemType problemType = ProblemType.ERRO_DE_SISTEMA;
         String detail = MSG_ERRO_GENERICA_USUARIO_FINAL;
 
-        ex.printStackTrace();
+        log.error(ex.getMessage(), ex);
 
         Problem problem = createProblemBuilder(status, problemType, detail).build();
         return handleExceptionInternal(ex, problem, new HttpHeaders(), status, request);
